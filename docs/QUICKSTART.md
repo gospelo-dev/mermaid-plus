@@ -66,6 +66,17 @@ codex exec "List the names of the agent skills available in this session."
 
 `gospelo-mermaid-plus` should appear in the list.
 
+### OpenCode
+
+OpenCode scans `.opencode/skills/`, `.claude/skills/`, and `.agents/skills/`, so either installer location works. To confirm discovery:
+
+```bash
+cd /path/to/your/repo
+opencode run -m <provider/model> "List the names of the agent skills available in this session."
+```
+
+`gospelo-mermaid-plus` should appear in the list. Note: if the default model's API key is not configured, `opencode run` can hang without an error — pass `-m` explicitly, or store credentials once with `opencode auth login` so it works regardless of shell environment variables.
+
 ## Use
 
 Two scripts, typically run in this order:

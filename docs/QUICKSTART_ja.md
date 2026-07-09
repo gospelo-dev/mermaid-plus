@@ -66,6 +66,17 @@ codex exec "List the names of the agent skills available in this session."
 
 一覧に `gospelo-mermaid-plus` が表示されれば成功です。
 
+### OpenCode
+
+OpenCode は `.opencode/skills/`・`.claude/skills/`・`.agents/skills/` を走査するため、インストーラーの配置先がどちらでも動作します。発見を確認するには:
+
+```bash
+cd /path/to/your/repo
+opencode run -m <provider/model> "List the names of the agent skills available in this session."
+```
+
+一覧に `gospelo-mermaid-plus` が表示されれば成功です。注意: デフォルトモデルのAPIキーが未設定だと `opencode run` はエラーを出さずにハングすることがあります。`-m` でモデルを明示するか、`opencode auth login` で認証情報を保存しておくとシェルの環境変数に依存せず動作します。
+
 ## 使い方
 
 スクリプトは2つで、通常この順に実行します:
