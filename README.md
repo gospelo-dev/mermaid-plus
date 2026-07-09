@@ -11,6 +11,8 @@ GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Mar
 
 The result: crisp retina diagrams with working `fa:fa-*` icons, plus the editable Mermaid source kept right next to them.
 
+New here? See the [Quickstart](QUICKSTART.md) ([日本語](QUICKSTART_ja.md)) for install and first-run steps with Claude Code or GitHub Copilot.
+
 ## Tools
 
 ### `apply_theme.py` — LLM-assisted theming
