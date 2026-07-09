@@ -55,6 +55,17 @@ copilot -p "List the names of the agent skills available in this session."
 
 `gospelo-mermaid-plus` should appear in the list. In VS Code, use agent mode and ask for the task in natural language ("apply the color scheme to this file's mermaid diagrams"), or reference the skill explicitly in a prompt file.
 
+### OpenAI Codex
+
+Codex scans `.agents/skills/` (not `.claude/skills/`), which the installer also populates. To confirm discovery with the Codex CLI:
+
+```bash
+cd /path/to/your/repo
+codex exec "List the names of the agent skills available in this session."
+```
+
+`gospelo-mermaid-plus` should appear in the list.
+
 ## Use
 
 Two scripts, typically run in this order:

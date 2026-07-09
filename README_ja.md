@@ -1,6 +1,6 @@
 # gospelo-mermaid-plus
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-CLI-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/mermaid-js/mermaid-cli) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-CLI-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/mermaid-js/mermaid-cli) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot,_Codex-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
 
 Markdown 内の Mermaid 図を、**一貫したテーマ適用済み・GitHub 表示対応の PNG** に変換します。
 

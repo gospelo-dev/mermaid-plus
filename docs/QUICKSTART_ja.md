@@ -55,6 +55,17 @@ copilot -p "List the names of the agent skills available in this session."
 
 一覧に `gospelo-mermaid-plus` が表示されれば成功です。VS Code では agent mode で自然言語で依頼するか(「このファイルの mermaid 図にカラースキームを適用して」)、プロンプトファイルからスキルを明示参照します。
 
+### OpenAI Codex
+
+Codex は `.claude/skills/` ではなく `.agents/skills/` を走査します(インストーラーはこちらにも配置します)。Codex CLI で発見を確認するには:
+
+```bash
+cd /path/to/your/repo
+codex exec "List the names of the agent skills available in this session."
+```
+
+一覧に `gospelo-mermaid-plus` が表示されれば成功です。
+
 ## 使い方
 
 スクリプトは2つで、通常この順に実行します:
