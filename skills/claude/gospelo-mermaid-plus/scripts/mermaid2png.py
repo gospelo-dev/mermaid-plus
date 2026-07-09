@@ -18,6 +18,7 @@ Usage:
 """
 
 import argparse
+import glob
 import json
 import os
 import re
@@ -27,17 +28,32 @@ import sys
 import tempfile
 
 
+def _node_version_key(path):
+    m = re.search(r"node/v(\d+)\.(\d+)\.(\d+)/", path)
+    return tuple(int(x) for x in m.groups()) if m else (0, 0, 0)
+
+
 def find_mmdc():
-    """Locate mmdc (Mermaid CLI) binary."""
+    """Locate mmdc (Mermaid CLI). Returns the command as an argv list."""
     mmdc = shutil.which("mmdc")
     if mmdc:
-        return mmdc
-    # Try common npx-installed path
+        return [mmdc]
     home = os.path.expanduser("~")
+    # Try common npm-global prefix path
     candidate = os.path.join(home, ".npm-global", "bin", "mmdc")
     if os.path.isfile(candidate):
-        return candidate
-    return "mmdc"  # fall back; let subprocess raise if not found
+        return [candidate]
+    # nvm keeps global packages per node version; mmdc may live under a
+    # version that is not currently active. Its shebang is `#!/usr/bin/env
+    # node`, so whatever node is on PATH can run it.
+    nvm_hits = glob.glob(os.path.join(home, ".nvm", "versions", "node", "*", "bin", "mmdc"))
+    if nvm_hits:
+        return [max(nvm_hits, key=_node_version_key)]
+    # Last resort: npx fetches the CLI on first use
+    npx = shutil.which("npx")
+    if npx:
+        return [npx, "-y", "@mermaid-js/mermaid-cli"]
+    return ["mmdc"]  # let subprocess raise if not found
 
 
 def find_chromium():
@@ -101,7 +117,7 @@ def extract_mermaid_blocks(md_text):
     return blocks
 
 
-def render_mermaid_to_png(mermaid_code, output_path, mmdc_bin, puppeteer_cfg, scale=2):
+def render_mermaid_to_png(mermaid_code, output_path, mmdc_cmd, puppeteer_cfg, scale=2):
     """Render a Mermaid diagram string to a PNG file.
 
     Returns True on success, False on failure.
@@ -113,8 +129,7 @@ def render_mermaid_to_png(mermaid_code, output_path, mmdc_bin, puppeteer_cfg, sc
         tmp_path = tmp.name
 
     try:
-        cmd = [
-            mmdc_bin,
+        cmd = mmdc_cmd + [
             "-i", tmp_path,
             "-o", output_path,
             "-s", str(scale),
@@ -127,7 +142,8 @@ def render_mermaid_to_png(mermaid_code, output_path, mmdc_bin, puppeteer_cfg, sc
             cmd,
             capture_output=True,
             text=True,
-            timeout=60,
+            # generous: the npx fallback downloads the CLI on first use
+            timeout=300,
         )
         if result.returncode != 0:
             print(f"  [WARN] mmdc failed: {result.stderr.strip()}", file=sys.stderr)
@@ -187,7 +203,7 @@ def process_markdown(md_path, puppeteer_cfg=None, scale=2, dry_run=False):
 
     print(f"Found {len(blocks)} mermaid block(s) in {os.path.basename(md_path)}")
 
-    mmdc_bin = find_mmdc()
+    mmdc_cmd = find_mmdc()
     pup_cfg = ensure_puppeteer_config(puppeteer_cfg)
 
     # Determine a base name from the markdown filename
@@ -216,7 +232,7 @@ def process_markdown(md_path, puppeteer_cfg=None, scale=2, dry_run=False):
             converted += 1
             continue
 
-        ok = render_mermaid_to_png(code, png_path, mmdc_bin, pup_cfg, scale)
+        ok = render_mermaid_to_png(code, png_path, mmdc_cmd, pup_cfg, scale)
         if ok:
             replacement = build_replacement(rel_path, code)
             md_text = md_text[:start] + replacement + md_text[end:]
