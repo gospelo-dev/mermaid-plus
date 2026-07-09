@@ -69,4 +69,4 @@ python $SKILL/scripts/apply_theme.py docs/architecture.md
 python $SKILL/scripts/mermaid2png.py docs/architecture.md
 ```
 
-In agent workflows you rarely run these by hand — the agent reads [SKILL.md](skills/claude/gospelo-mermaid-plus/SKILL.md) and orchestrates both steps. See the [README](README.md) for details and troubleshooting.
+In agent workflows you rarely run these by hand — the agent reads [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) and orchestrates both steps. See the [README](../README.md) for details and troubleshooting.

@@ -69,4 +69,4 @@ python $SKILL/scripts/apply_theme.py docs/architecture.md
 python $SKILL/scripts/mermaid2png.py docs/architecture.md
 ```
 
-エージェント経由で使う場合、これらを手動実行することはほとんどありません — エージェントが [SKILL.md](skills/claude/gospelo-mermaid-plus/SKILL.md) を読んで両ステップを自動処理します。詳細とトラブルシューティングは [README](README.md) を参照してください。
+エージェント経由で使う場合、これらを手動実行することはほとんどありません — エージェントが [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) を読んで両ステップを自動処理します。詳細とトラブルシューティングは [README](../README_ja.md) を参照してください。

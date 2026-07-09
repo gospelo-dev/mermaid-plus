@@ -4,6 +4,8 @@
 
 Turn Mermaid diagrams in Markdown into **consistently themed, GitHub-ready PNGs**.
 
+日本語版: [README_ja.md](README_ja.md)
+
 GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Markdown, so Mermaid diagrams that rely on Font Awesome icons or custom styling look broken on github.com. This skill solves that with a two-step workflow:
 
 1. **Apply a repository color scheme** to every Mermaid block (LLM-assisted)
@@ -11,7 +13,7 @@ GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Mar
 
 The result: crisp retina diagrams with working `fa:fa-*` icons, plus the editable Mermaid source kept right next to them.
 
-New here? See the [Quickstart](QUICKSTART.md) ([日本語](QUICKSTART_ja.md)) for install and first-run steps with Claude Code or GitHub Copilot.
+New here? See the [Quickstart](docs/QUICKSTART.md) ([日本語](docs/QUICKSTART_ja.md)) for install and first-run steps with Claude Code or GitHub Copilot.
 
 ## Tools
 
