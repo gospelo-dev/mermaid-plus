@@ -4,7 +4,7 @@
 
 Turn Mermaid diagrams in Markdown into **consistently themed, GitHub-ready PNGs**.
 
-日本語版: [README_ja.md](README_ja.md)
+日本語版: [README_ja.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/README_ja.md)
 
 GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Markdown, so Mermaid diagrams that rely on Font Awesome icons or custom styling look broken on github.com. This skill solves that with a two-step workflow:
 
@@ -13,13 +13,13 @@ GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Mar
 
 The result: crisp retina diagrams with working `fa:fa-*` icons, plus the editable Mermaid source kept right next to them.
 
-New here? See the [Quickstart](docs/QUICKSTART.md) ([日本語](docs/QUICKSTART_ja.md)) for install and first-run steps with Claude Code or GitHub Copilot.
+New here? See the [Quickstart](https://github.com/gospelo-dev/mermaid-plus/blob/main/docs/QUICKSTART.md) ([日本語](https://github.com/gospelo-dev/mermaid-plus/blob/main/docs/QUICKSTART_ja.md)) for install and first-run steps with Claude Code or GitHub Copilot.
 
 ## Tools
 
 ### `apply_theme.py` — LLM-assisted theming
 
-Extracts all ```` ```mermaid ```` blocks from a Markdown file and prints a self-contained prompt to stdout. Feed that prompt to an LLM (e.g. Claude) and it returns the same blocks with the repository color scheme applied — `classDef`, `linkStyle`, subgraph `style`, and `%%{init}` directives matching the palette in [references/color-scheme.md](skills/claude/gospelo-mermaid-plus/references/color-scheme.md).
+Extracts all ```` ```mermaid ```` blocks from a Markdown file and prints a self-contained prompt to stdout. Feed that prompt to an LLM (e.g. Claude) and it returns the same blocks with the repository color scheme applied — `classDef`, `linkStyle`, subgraph `style`, and `%%{init}` directives matching the palette in [references/color-scheme.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/references/color-scheme.md).
 
 Why an LLM instead of regex? Correct Mermaid styling requires understanding diagram structure — which links are dashed vs. solid, which subgraphs are primary, and 0-based `linkStyle` indices in declaration order. An LLM applies the theme semantically; a regex tool gets these wrong.
 
@@ -110,7 +110,7 @@ python $INSTALL --user --symlink
 python $INSTALL --project /path/to/repo --force
 ```
 
-Agents discover the skill via [SKILL.md](skills/claude/gospelo-mermaid-plus/SKILL.md) and trigger it when you say things like *"render mermaid to png"*, *"apply the color scheme"*, or *"make the FA icons show up on GitHub"*. See SKILL.md for the full workflow, the FA6 icon blacklist, and troubleshooting.
+Agents discover the skill via [SKILL.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/SKILL.md) and trigger it when you say things like *"render mermaid to png"*, *"apply the color scheme"*, or *"make the FA icons show up on GitHub"*. See SKILL.md for the full workflow, the FA6 icon blacklist, and troubleshooting.
 
 ### Distributing as a ZIP
 
@@ -146,4 +146,4 @@ mermaid-plus/
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE)
