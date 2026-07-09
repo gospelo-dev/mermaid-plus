@@ -6,6 +6,8 @@ For the English version, see [QUICKSTART.md](QUICKSTART.md).
 
 ## 前提条件
 
+対応プラットフォーム: **macOS / Linux / WSL2**
+
 | 依存 | 必須 | 備考 |
 |---|---|---|
 | Python 3.9 以上 | はい | 標準ライブラリのみ。pip パッケージは不要 |

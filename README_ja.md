@@ -67,6 +67,8 @@ python skills/claude/gospelo-mermaid-plus/scripts/mermaid2png.py doc.md
 
 ## 前提条件
 
+対応プラットフォーム: **macOS / Linux / WSL2**
+
 | 依存 | インストール |
 |---|---|
 | Node.js 18 以上 | 多くの環境でインストール済み |
@@ -130,20 +132,41 @@ unzip gospelo-mermaid-plus.zip
 python gospelo-mermaid-plus/scripts/install.py --project /path/to/repo   # または --user
 ```
 
+## 姉妹スキル: gospelo-md2backlog
+
+レンダリング結果(Markdown + `images/`)を [Backlog](https://backlog.com/) の課題に1コマンドで投稿します。ローカル画像を Backlog API でアップロードし、参照を Backlog のインライン添付記法(`![image][name.png]`)に書き換えて、課題の新規作成またはコメント追加を行います:
+
+```bash
+# リポジトリごとの設定: <repo>/.backlog.env (gitignore すること)
+#   BACKLOG_SPACE_URL=https://yourspace.backlog.jp
+#   BACKLOG_PROJECT=PJKEY
+#   BACKLOG_API_KEY=...
+
+python skills/claude/gospelo-md2backlog/scripts/md2backlog.py docs/design.md            # 課題を新規作成
+python skills/claude/gospelo-md2backlog/scripts/md2backlog.py docs/design.md --issue PJKEY-123  # コメント追加
+```
+
+設定とオプションの詳細は [gospelo-md2backlog/SKILL.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-md2backlog/SKILL.md) を参照してください。インストールは同梱の `scripts/install.py` で同様に行えます。
+
 ## リポジトリ構成
 
 ```
 mermaid-plus/
 └── skills/
     └── claude/
-        └── gospelo-mermaid-plus/
-            ├── SKILL.md            # Agent Skill 定義とドキュメント本体
-            ├── scripts/
-            │   ├── apply_theme.py  # テーマ適用プロンプト生成
-            │   ├── mermaid2png.py  # Mermaid → PNG レンダラー
-            │   └── install.py      # スキル発見パスへのインストーラー
-            └── references/
-                └── color-scheme.md # パレット全体・推奨アイコン・上書きポリシー
+        ├── gospelo-mermaid-plus/
+        │   ├── SKILL.md            # Agent Skill 定義とドキュメント本体
+        │   ├── scripts/
+        │   │   ├── apply_theme.py  # テーマ適用プロンプト生成
+        │   │   ├── mermaid2png.py  # Mermaid → PNG レンダラー
+        │   │   └── install.py      # スキル発見パスへのインストーラー
+        │   └── references/
+        │       └── color-scheme.md # パレット全体・推奨アイコン・上書きポリシー
+        └── gospelo-md2backlog/
+            ├── SKILL.md            # Markdown + 画像 → Backlog 課題
+            └── scripts/
+                ├── md2backlog.py   # 添付アップロード+インライン書き換え+課題/コメント投稿
+                └── install.py      # インストーラー(上と同じ)
 ```
 
 ## ライセンス

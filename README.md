@@ -67,6 +67,8 @@ The script is **idempotent** — blocks that were already converted are skipped,
 
 ## Prerequisites
 
+Supported platforms: **macOS / Linux / WSL2**
+
 | Dependency | Install |
 |---|---|
 | Node.js ≥ 18 | pre-installed in most environments |
@@ -130,20 +132,41 @@ unzip gospelo-mermaid-plus.zip
 python gospelo-mermaid-plus/scripts/install.py --project /path/to/repo   # or --user
 ```
 
+## Companion skill: gospelo-md2backlog
+
+Post the rendered result (Markdown + `images/`) to a [Backlog](https://backlog.com/) issue in one command. It uploads each local image via the Backlog API, rewrites references to Backlog's inline attachment syntax (`![image][name.png]`), and creates an issue or adds a comment:
+
+```bash
+# Per-repo config: <repo>/.backlog.env (gitignore it)
+#   BACKLOG_SPACE_URL=https://yourspace.backlog.jp
+#   BACKLOG_PROJECT=PJKEY
+#   BACKLOG_API_KEY=...
+
+python skills/claude/gospelo-md2backlog/scripts/md2backlog.py docs/design.md            # new issue
+python skills/claude/gospelo-md2backlog/scripts/md2backlog.py docs/design.md --issue PJKEY-123  # comment
+```
+
+See [gospelo-md2backlog/SKILL.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-md2backlog/SKILL.md) for configuration and options. It installs the same way via its own `scripts/install.py`.
+
 ## Repository layout
 
 ```
 mermaid-plus/
 └── skills/
     └── claude/
-        └── gospelo-mermaid-plus/
-            ├── SKILL.md            # Agent Skill definition and full documentation
-            ├── scripts/
-            │   ├── apply_theme.py  # Theming prompt generator
-            │   ├── mermaid2png.py  # Mermaid → PNG renderer
-            │   └── install.py      # Installer for agent skill discovery paths
-            └── references/
-                └── color-scheme.md # Full palette, icon recommendations, override policy
+        ├── gospelo-mermaid-plus/
+        │   ├── SKILL.md            # Agent Skill definition and full documentation
+        │   ├── scripts/
+        │   │   ├── apply_theme.py  # Theming prompt generator
+        │   │   ├── mermaid2png.py  # Mermaid → PNG renderer
+        │   │   └── install.py      # Installer for agent skill discovery paths
+        │   └── references/
+        │       └── color-scheme.md # Full palette, icon recommendations, override policy
+        └── gospelo-md2backlog/
+            ├── SKILL.md            # Markdown + images → Backlog issue
+            └── scripts/
+                ├── md2backlog.py   # Attachment upload + inline rewrite + issue/comment
+                └── install.py      # Installer (same as above)
 ```
 
 ## License

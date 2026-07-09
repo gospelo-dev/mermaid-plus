@@ -6,6 +6,8 @@ Get the gospelo-mermaid-plus skill running in **Claude Code** or **GitHub Copilo
 
 ## Prerequisites
 
+Supported platforms: **macOS / Linux / WSL2**
+
 | Dependency | Required | Notes |
 |---|---|---|
 | Python ≥ 3.9 | yes | standard library only, no pip packages |
