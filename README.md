@@ -1,5 +1,7 @@
 # gospelo-mermaid-plus
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-CLI-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/mermaid-js/mermaid-cli) [![Agent Skill](https://img.shields.io/badge/Claude_Code-Agent_Skill-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
+
 Turn Mermaid diagrams in Markdown into **consistently themed, GitHub-ready PNGs**.
 
 GitHub strips external fonts, `<style>` tags, and `data:` URIs from rendered Markdown, so Mermaid diagrams that rely on Font Awesome icons or custom styling look broken on github.com. This skill solves that with a two-step workflow:
