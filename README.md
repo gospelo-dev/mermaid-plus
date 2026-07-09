@@ -85,21 +85,44 @@ git add docs/architecture.md docs/images/
 
 ## Installing as an Agent Skill
 
-This repository ships a [Claude Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) at `skills/claude/gospelo-mermaid-plus/`. To install it, clone the repo and symlink the skill directory into a `.claude/skills/` directory:
+This repository ships an [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) at `skills/claude/gospelo-mermaid-plus/`. The skill uses only the portable core of the open [Agent Skills standard](https://github.com/agentskills/agentskills), so it works with **Claude Code, GitHub Copilot, OpenAI Codex, and OpenCode**.
+
+`scripts/install.py` copies (or symlinks) the skill into the discovery paths those agents scan — `.claude/skills/` and `.agents/skills/`:
 
 ```bash
 git clone https://github.com/gospelo-dev/mermaid-plus.git
+INSTALL=mermaid-plus/skills/claude/gospelo-mermaid-plus/scripts/install.py
 
-# Per-project
-mkdir -p .claude/skills
-ln -s "$(pwd)/mermaid-plus/skills/claude/gospelo-mermaid-plus" .claude/skills/gospelo-mermaid-plus
+# Into a project
+python $INSTALL --project /path/to/repo
 
-# Or globally for all projects
-mkdir -p ~/.claude/skills
-ln -s "$(pwd)/mermaid-plus/skills/claude/gospelo-mermaid-plus" ~/.claude/skills/gospelo-mermaid-plus
+# User-wide (all projects on this machine)
+python $INSTALL --user
+
+# Development setup: symlink back to this clone instead of copying
+python $INSTALL --user --symlink
+
+# Replace an existing installation
+python $INSTALL --project /path/to/repo --force
 ```
 
-Claude Code discovers the skill via [SKILL.md](skills/claude/gospelo-mermaid-plus/SKILL.md) and triggers it when you say things like *"render mermaid to png"*, *"apply the color scheme"*, or *"make the FA icons show up on GitHub"*. See SKILL.md for the full workflow, the FA6 icon blacklist, and troubleshooting.
+Agents discover the skill via [SKILL.md](skills/claude/gospelo-mermaid-plus/SKILL.md) and trigger it when you say things like *"render mermaid to png"*, *"apply the color scheme"*, or *"make the FA icons show up on GitHub"*. See SKILL.md for the full workflow, the FA6 icon blacklist, and troubleshooting.
+
+### Distributing as a ZIP
+
+To hand the skill to someone without repo access:
+
+```bash
+cd mermaid-plus/skills/claude
+zip -r gospelo-mermaid-plus.zip gospelo-mermaid-plus -x "*__pycache__*" -x "*.DS_Store"
+```
+
+The recipient unzips it anywhere and runs the installer:
+
+```bash
+unzip gospelo-mermaid-plus.zip
+python gospelo-mermaid-plus/scripts/install.py --project /path/to/repo   # or --user
+```
 
 ## Repository layout
 
@@ -111,7 +134,8 @@ mermaid-plus/
             ├── SKILL.md            # Agent Skill definition and full documentation
             ├── scripts/
             │   ├── apply_theme.py  # Theming prompt generator
-            │   └── mermaid2png.py  # Mermaid → PNG renderer
+            │   ├── mermaid2png.py  # Mermaid → PNG renderer
+            │   └── install.py      # Installer for agent skill discovery paths
             └── references/
                 └── color-scheme.md # Full palette, icon recommendations, override policy
 ```
