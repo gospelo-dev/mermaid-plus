@@ -173,15 +173,29 @@ def build_replacement(image_rel_path, mermaid_code):
     )
 
 
-def already_converted(md_text, block_start):
+def already_converted(md_text, block_start, md_dir):
     """Check if the mermaid block is already inside a <details> fold
-    preceded by a PNG image — i.e., was already processed.
+    preceded by a PNG image that actually exists on disk.
+
+    A wrapper alone is not enough: a prior ``--dry-run`` (or a manual
+    edit) can leave the ``![diagram]`` reference + ``<details>`` fold in
+    place while the PNG was never rendered.  In that case we must treat
+    the block as *not* converted so it gets rendered on the real run.
     """
     # Look backwards from block_start for the pattern we produce
     prefix = md_text[max(0, block_start - 300):block_start]
-    if "<details>" in prefix and "![diagram](" in prefix:
-        return True
-    return False
+    if "<details>" not in prefix:
+        return False
+
+    # Take the image reference closest to the block (last match in prefix)
+    refs = re.findall(r"!\[diagram\]\(([^)]+)\)", prefix)
+    if not refs:
+        return False
+
+    image_ref = refs[-1].strip()
+    # Resolve the reference (relative to the Markdown file) to a real path.
+    image_path = image_ref if os.path.isabs(image_ref) else os.path.join(md_dir, image_ref)
+    return os.path.isfile(image_path)
 
 
 def process_markdown(md_path, puppeteer_cfg=None, scale=2, dry_run=False):
@@ -203,11 +217,32 @@ def process_markdown(md_path, puppeteer_cfg=None, scale=2, dry_run=False):
 
     print(f"Found {len(blocks)} mermaid block(s) in {os.path.basename(md_path)}")
 
-    mmdc_cmd = find_mmdc()
-    pup_cfg = ensure_puppeteer_config(puppeteer_cfg)
-
     # Determine a base name from the markdown filename
     base = os.path.splitext(os.path.basename(md_path))[0]
+
+    def png_ref(real_idx):
+        png_name = f"{base}-{real_idx + 1}.png" if len(blocks) > 1 else f"{base}.png"
+        return png_name, os.path.join(images_dir, png_name), f"images/{png_name}"
+
+    # --dry-run must be side-effect free: no rendering, no images/ dir, and
+    # crucially NO Markdown rewrite.  A prior version rewrote the file into the
+    # "converted" shape without producing PNGs, which then made the real run
+    # skip every block as "already converted" — leaving broken image links.
+    if dry_run:
+        would_convert = 0
+        for real_idx, (start, end, code) in enumerate(blocks):
+            _, _, rel_path = png_ref(real_idx)
+            if already_converted(md_text, start, md_dir):
+                print(f"  Block {real_idx + 1}: already converted, would skip")
+            else:
+                print(f"  Block {real_idx + 1}: would render → {rel_path}")
+                would_convert += 1
+        print(f"\nDry run: {would_convert}/{len(blocks)} block(s) would be converted. "
+              f"No files written.")
+        return True
+
+    mmdc_cmd = find_mmdc()
+    pup_cfg = ensure_puppeteer_config(puppeteer_cfg)
 
     os.makedirs(images_dir, exist_ok=True)
 
@@ -216,21 +251,13 @@ def process_markdown(md_path, puppeteer_cfg=None, scale=2, dry_run=False):
     for idx, (start, end, code) in enumerate(reversed(blocks)):
         real_idx = len(blocks) - 1 - idx  # original order index
 
-        if already_converted(md_text, start):
+        if already_converted(md_text, start, md_dir):
             print(f"  Block {real_idx + 1}: already converted, skipping")
             continue
 
-        png_name = f"{base}-{real_idx + 1}.png" if len(blocks) > 1 else f"{base}.png"
-        png_path = os.path.join(images_dir, png_name)
-        rel_path = f"images/{png_name}"
+        _, png_path, rel_path = png_ref(real_idx)
 
         print(f"  Block {real_idx + 1}: rendering → {rel_path}")
-
-        if dry_run:
-            replacement = build_replacement(rel_path, code)
-            md_text = md_text[:start] + replacement + md_text[end:]
-            converted += 1
-            continue
 
         ok = render_mermaid_to_png(code, png_path, mmdc_cmd, pup_cfg, scale)
         if ok:
@@ -271,7 +298,8 @@ def main():
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Rewrite Markdown without actually rendering PNGs",
+        help="Report block count and planned output paths only; "
+             "render nothing and leave the Markdown untouched",
     )
     args = parser.parse_args()
     success = process_markdown(

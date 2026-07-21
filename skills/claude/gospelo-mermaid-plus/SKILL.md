@@ -141,12 +141,15 @@ python <skill-path>/scripts/mermaid2png.py <markdown_file>
 |---|---|---|
 | `--scale N` | `2` | Render scale factor (1 = 1×, 2 = retina) |
 | `--puppeteer-config PATH` | auto | Puppeteer JSON config for mmdc |
-| `--dry-run` | off | Rewrite Markdown without rendering PNGs |
+| `--dry-run` | off | Report block count and planned paths only; renders nothing and leaves the Markdown untouched |
 
 ### Idempotency
 
-Blocks already converted (image + `<details>` fold above them) are skipped.
-Running twice on the same file is safe.
+A block is skipped only when it already has the `![diagram]` + `<details>`
+fold above it **and** the referenced PNG actually exists on disk. If the
+PNG is missing (e.g. it was deleted, or a wrapper was left behind without a
+render), the block is treated as unconverted and re-rendered. Running twice
+on the same file is safe.
 
 ### Prerequisites
 
