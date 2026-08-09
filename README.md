@@ -33,6 +33,18 @@ python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/t
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to the color-scheme reference file |
+| `--accent '#RRGGBB'` | none (default teal `#0D9488`) | Custom accent color. Rebuilds the whole scheme from one hex color using CIELAB color science |
+
+With `--accent`, the color scheme embedded in the prompt is regenerated from a single accent color. Links and subgraph strokes take the color you pass, and the light subgraph fill is derived in CIELAB (a perceptually uniform space, so lightness and hue stay consistent). If the color has low contrast on white, the script warns on stderr and continues.
+
+<p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/cielab-accent-derivation.jpg" alt="CIELAB accent derivation — how one accent color becomes a matching subgraph tint" width="820"></p>
+
+Four steps: keep the hue direction, drop chroma to 5, lift lightness to `L*=98`, and binary-search back into the sRGB gamut if the result falls outside it.
+
+```bash
+# Generate a theming prompt using your brand color
+python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
+```
 
 The script never modifies your file — the LLM's response is what gets applied.
 

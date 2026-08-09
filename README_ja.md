@@ -33,6 +33,18 @@ python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/t
 | フラグ | デフォルト | 説明 |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | カラースキームのリファレンスファイルのパス |
+| `--accent '#RRGGBB'` | なし(既定のティール `#0D9488`) | アクセントカラーを指定。CIELAB 色空間でスキーム全体を自動生成する |
+
+`--accent` を使うと、アクセント色1色からプロンプト内のカラースキームを丸ごと組み替えられます。リンク線とサブグラフ枠線は指定色に置き換わり、subgraph の塗りつぶし用の淡色は CIELAB(知覚的な明度・色相を保つ色空間)で自動導出されます。白背景でのコントラストが不足する色を渡した場合は stderr に警告が出ます(処理は継続します)。
+
+<p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/cielab-accent-derivation.jpg" alt="CIELAB accent derivation — アクセント色1色から subgraph 用の淡色を導出する仕組み" width="820"></p>
+
+色相の方向を保ったまま明度を `L*=98` まで持ち上げ、彩度を 5 まで落とし、sRGB の色域外なら二分探索で内側にクランプする、という4ステップです。
+
+```bash
+# ブランドカラーでテーマ適用プロンプトを生成する
+python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
+```
 
 このスクリプト自体はファイルを変更しません — 適用されるのは LLM の応答です。
 
