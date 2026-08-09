@@ -61,6 +61,7 @@ In practice, as an Agent Skill, the workflow is:
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to color-scheme reference file |
+| `--accent '#RRGGBB'` | (none — uses default teal) | Custom accent color. Auto-generates a complete color scheme from a single hex color using CIELAB color science. Replaces the default teal accent and derives a light tint for subgraph fills. Warns on stderr if the color has low contrast on white. |
 
 ### Color scheme summary
 
@@ -71,15 +72,15 @@ The full reference is in `references/color-scheme.md`.  Key values:
 | Role | Value |
 |---|---|
 | Node fill / stroke / text | `#FFFFFF` / `#666666` (1.5 px) / `#2C2C2C` |
-| Accent link (solid, teal) | `#0D9488` (2 px) — normal data/control flow |
+| Accent link (solid) | `#0D9488` (2 px) — normal data/control flow (override with `--accent`) |
 | Dashed link (grey) | `#9CA3AF` (1.5 px, `4 4`) — read-only / monitoring |
-| Primary subgraph | fill `#F0FDFA` / stroke `#0D9488` |
+| Primary subgraph | fill `#F0FDFA` / stroke `#0D9488` (auto-derived from `--accent`) |
 | Neutral subgraph | fill `#F8FAFC` / stroke `#94A3B8` |
 
 **Rules:**
 
 - `classDef node` applied to ALL nodes in a flowchart
-- Solid teal links for normal flow (`-->`), dashed grey for non-destructive (`-.->`)
+- Solid accent-color links for normal flow (`-->`), dashed grey for non-destructive (`-.->`)
 - `linkStyle` indices are declaration-order, 0-based — always verify after editing
 - sequenceDiagram uses `%%{init: {'theme':'base', 'themeVariables': {...}}}%%`
 - `fa:fa-*` icons in flowchart node labels only (not in sequenceDiagram)
