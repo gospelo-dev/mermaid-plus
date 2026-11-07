@@ -87,6 +87,7 @@ export function pngName(base: string, index: number, count: number): string {
 }
 
 function errorText(err: unknown): string {
+  if (err instanceof BuildError) return `error[${err.code}]: ${err.text()}`
   return err instanceof Error ? err.message : String(err)
 }
 

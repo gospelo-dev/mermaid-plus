@@ -8,7 +8,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import { BuildError, iconCategories, iconNamesInDiagrams, mermaidBlocks } from '@gospelo/mermaid-arch'
+import { BuildError, iconCategories, iconNamesInDiagrams, mermaidBlocks, report } from '@gospelo/mermaid-arch'
 import { lowContrastWarning, normalizeAccent } from '../color.ts'
 import { processMarkdown } from '../mermaid2png.ts'
 import { applyAccentToScheme, buildThemePrompt, DEFAULT_SCHEME, readScheme } from '../theme.ts'
@@ -141,7 +141,9 @@ async function main(argv: string[]): Promise<number> {
       return 2
     }
     if (err instanceof BuildError) {
-      console.error(`Error: ${err.message}`)
+      // mermaid-arch's text form: message plus the fix (e.g. the command
+      // that installs chrome-headless-shell).
+      report('mermaid-plus', err, 'text')
       return 1
     }
     throw err
