@@ -3,7 +3,7 @@
 md2backlog.py — Post a Markdown file (with local images) to a Backlog issue.
 
 For each local image referenced in the Markdown (e.g. the images/ directory
-produced by mermaid2png.py):
+produced by gospelo-mermaid-plus's mermaid2png command):
   1. Uploads it via POST /api/v2/space/attachment
   2. Rewrites the reference to Backlog's inline attachment syntax
      (Markdown-mode projects): ![image][filename.png]
@@ -53,14 +53,14 @@ CONFIG_FILENAME = ".backlog.env"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def find_mermaid2png():
-    """Locate the sibling gospelo-mermaid-plus skill's mermaid2png.py.
+def find_mermaid_plus_cli():
+    """Locate the sibling gospelo-mermaid-plus skill's CLI (src/cli/main.ts).
 
     Works both in the repository layout (skills/claude/<skill>/) and when
     installed (.claude/skills/<skill>/), where the two skills are siblings.
     """
     candidate = os.path.normpath(
-        os.path.join(SCRIPT_DIR, "..", "..", "gospelo-mermaid-plus", "scripts", "mermaid2png.py")
+        os.path.join(SCRIPT_DIR, "..", "..", "gospelo-mermaid-plus", "src", "cli", "main.ts")
     )
     if os.path.isfile(candidate):
         return candidate
@@ -74,13 +74,17 @@ def render_to_tmp(md_path, scale):
     become an image before posting. The original file is left untouched.
     Returns the path of the rendered temp copy.
     """
-    renderer = find_mermaid2png()
-    if not renderer:
+    cli = find_mermaid_plus_cli()
+    if not cli:
         print(
             "Error: --render requires the gospelo-mermaid-plus skill installed"
-            " next to this one (mermaid2png.py not found).",
+            " next to this one (src/cli/main.ts not found).",
             file=sys.stderr,
         )
+        sys.exit(1)
+    node = shutil.which("node")
+    if not node:
+        print("Error: --render requires Node.js >= 22.18 (node not found).", file=sys.stderr)
         sys.exit(1)
 
     tmp_dir = tempfile.mkdtemp(prefix="md2backlog-")
@@ -88,7 +92,7 @@ def render_to_tmp(md_path, scale):
     shutil.copy2(md_path, tmp_md)
 
     result = subprocess.run(
-        [sys.executable, renderer, tmp_md, "--scale", str(scale)],
+        [node, cli, "mermaid2png", tmp_md, "--scale", str(scale)],
         capture_output=True,
         text=True,
     )

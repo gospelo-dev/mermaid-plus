@@ -10,9 +10,9 @@ Supported platforms: **macOS / Linux / WSL2**
 
 | Dependency | Required | Notes |
 |---|---|---|
-| Python ≥ 3.9 | yes | standard library only, no pip packages |
-| Node.js ≥ 18 | for PNG rendering | |
-| Mermaid CLI (`mmdc`) | recommended | `npm install -g @mermaid-js/mermaid-cli` — without it, the script falls back to `npx` (slow first run) |
+| Node.js ≥ 22.18 | yes | runs the TypeScript CLI directly; the installer runs `npm ci` for its dependencies |
+| Python ≥ 3.9 | for the installer | standard library only, no pip packages |
+| chrome-headless-shell | for PNG rendering | once: `npx @puppeteer/browsers install chrome-headless-shell@156.0.8078.47 --path ~/.cache/puppeteer` — `mermaid2png` prints this command when it is missing |
 
 ## Install
 
@@ -102,16 +102,16 @@ That directory is scanned as `**/SKILL.md`, so both `gospelo-mermaid-plus` and `
 
 ## Use
 
-Two scripts, typically run in this order:
+Two commands, typically run in this order:
 
 ```bash
-SKILL=.claude/skills/gospelo-mermaid-plus
+CLI=.claude/skills/gospelo-mermaid-plus/src/cli/main.ts
 
 # 1. Apply the color scheme: generates a prompt for your agent to theme the blocks
-python $SKILL/scripts/apply_theme.py docs/architecture.md
+node $CLI apply-theme docs/architecture.md
 
 # 2. Render to PNG and fold the mermaid source into <details> (for GitHub, where FA icons don't render)
-python $SKILL/scripts/mermaid2png.py docs/architecture.md
+node $CLI mermaid2png docs/architecture.md
 ```
 
 In agent workflows you rarely run these by hand — the agent reads [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) and orchestrates both steps. See the [README](../README.md) for details and troubleshooting.

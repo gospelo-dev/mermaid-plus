@@ -1,6 +1,6 @@
 # gospelo-mermaid-plus
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-CLI-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/mermaid-js/mermaid-cli) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot,_Codex,_OpenCode-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Node.js](https://img.shields.io/badge/Node.js-22.18+-1E90FF.svg?style=flat&logo=nodedotjs&logoColor=white)](https://nodejs.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-12_(ELK)-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/gospelo-dev/mermaid-arch) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot,_Codex,_OpenCode-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
 
 <p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/hero.jpg" alt="Mermaid Plus — themed, GitHub-ready PNGs for your Mermaid diagrams" width="820"></p>
 
@@ -19,14 +19,16 @@ GitHub は Markdown レンダリング時に外部フォント・`<style>` タ�
 
 ## ツール
 
-### `apply_theme.py` — LLM 支援によるテーマ適用
+どちらのツールも、Node.js がそのまま実行する TypeScript の CLI のコマンドです(ビルド不要)。レンダリングには [`@gospelo/mermaid-arch`](https://github.com/gospelo-dev/mermaid-arch) を使います: Mermaid 12 と ELK レイアウト、AWS アーキテクチャアイコン、Font Awesome Free 6 に対応しています。
+
+### `apply-theme` — LLM 支援によるテーマ適用
 
 Markdown ファイルからすべての ```` ```mermaid ```` ブロックを抽出し、自己完結したプロンプトを標準出力に出力します。このプロンプトを LLM(Claude など)に渡すと、[references/color-scheme.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/references/color-scheme.md) のパレットに沿った `classDef`・`linkStyle`・subgraph `style`・`%%{init}` ディレクティブを適用済みの Mermaid コードが返ってきます。
 
 正規表現ではなく LLM を使う理由: 正しい Mermaid スタイリングには図の構造理解が必要です — どのリンクが破線でどれが実線か、どの subgraph が主役か、宣言順 0 始まりの `linkStyle` 番号など。LLM は意味を踏まえてテーマを適用できますが、正規表現ツールはここを間違えます。
 
 ```bash
-python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/theme-prompt.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tmp/theme-prompt.md
 # プロンプトを LLM に渡し、各 mermaid ブロックをテーマ適用済みコードに置き換える
 ```
 
@@ -34,6 +36,7 @@ python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/t
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | カラースキームのリファレンスファイルのパス |
 | `--accent '#RRGGBB'` | なし(既定のティール `#0D9488`) | アクセントカラーを指定。CIELAB 色空間でスキーム全体を自動生成する |
+| `--icons-zip ZIP` | なし | AWS アイコンパッケージの zip。ブロックが `aws:` アイコンを使うとき、各アイコンの AWS カテゴリ色をプロンプトに載せる |
 
 `--accent` を使うと、アクセント色1色からプロンプト内のカラースキームを丸ごと組み替えられます。リンク線とサブグラフ枠線は指定色に置き換わり、subgraph の塗りつぶし用の淡色は CIELAB(知覚的な明度・色相を保つ色空間)で自動導出されます。白背景でのコントラストが不足する色を渡した場合は stderr に警告が出ます(処理は継続します)。
 
@@ -43,14 +46,14 @@ python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/t
 
 ```bash
 # ブランドカラーでテーマ適用プロンプトを生成する
-python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
 ```
 
-このスクリプト自体はファイルを変更しません — 適用されるのは LLM の応答です。
+このコマンド自体はファイルを変更しません — 適用されるのは LLM の応答です。
 
-### `mermaid2png.py` — PNG 化と `<details>` 折り畳み
+### `mermaid2png` — PNG 化と `<details>` 折り畳み
 
-すべての ```` ```mermaid ```` ブロックを見つけ、Mermaid CLI(`mmdc`)で PNG にレンダリングし、Markdown ファイルと同じ場所の `images/` ディレクトリに保存した上で、各ブロックを次の形に書き換えます:
+すべての ```` ```mermaid ```` ブロックを見つけ、mermaid-arch で PNG にレンダリングし(全ブロックで1つのヘッドレスブラウザを使う)、Markdown ファイルと同じ場所の `images/` ディレクトリに保存した上で、各ブロックを次の形に書き換えます:
 
 ````markdown
 ![diagram](images/doc-1.png)
@@ -66,16 +69,22 @@ graph LR
 ````
 
 ```bash
-python skills/claude/gospelo-mermaid-plus/scripts/mermaid2png.py doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 ```
 
 | フラグ | デフォルト | 説明 |
 |---|---|---|
-| `--scale N` | `2` | レンダリング倍率(2 = Retina) |
-| `--puppeteer-config PATH` | 自動 | `mmdc` 用 Puppeteer JSON 設定(Chromium は自動検出) |
-| `--dry-run` | オフ | PNG をレンダリングせずに Markdown のみ書き換え |
+| `--scale N` | `2` | PNG のピクセル比(2 = Retina) |
+| `--dry-run` | オフ | 出力予定のパスを表示するだけで、何も書き込まない |
+| `--icons-zip ZIP` | なし | AWS アイコンパッケージの zip(`Icon-package_*.zip`)。ブロックが `aws:` アイコンを使うときに必要 |
+| `--chrome PATH` | 自動 | chrome-headless-shell の実行ファイル |
+| `--no-sandbox` | オフ | ブラウザを `--no-sandbox` で起動する(コンテナ、root) |
+| `--background COLOR` | `transparent` | PNG の背景: CSS の色または `transparent` |
+| `--max-width PX` | なし | PX(CSS ピクセル)より幅の広い図を縮小する |
 
-このスクリプトは**冪等**です — 変換済みのブロックはスキップされるため、同じファイルに2回実行しても安全です。レンダリングに失敗したブロックは元のまま残ります。
+flowchart は既定で ELK でレイアウトされます(Mermaid 12)。dagre を使うときは、ブロックのフロントマターに `layout: dagre` を書きます。
+
+このコマンドは**冪等**です — 変換済みのブロックはスキップされるため、同じファイルに2回実行しても安全です。レンダリングに失敗したブロックは元のまま残ります。
 
 ## 前提条件
 
@@ -83,21 +92,21 @@ python skills/claude/gospelo-mermaid-plus/scripts/mermaid2png.py doc.md
 
 | 依存 | インストール |
 |---|---|
-| Node.js 18 以上 | 多くの環境でインストール済み |
-| Mermaid CLI (`mmdc`) | `npm install -g @mermaid-js/mermaid-cli` |
-| Chromium | 自動検出(Playwright 同梱またはシステム)。`--puppeteer-config` で上書き可 |
-| Python 3.9 以上 | 多くの環境でインストール済み(標準ライブラリのみ、pip パッケージ不要) |
+| Node.js 22.18 以上 | TypeScript のソースをそのまま実行する(型の除去) |
+| npm の依存 | スキルのフォルダで `npm ci --omit=dev` — `scripts/install.py` が実行する |
+| chrome-headless-shell | 一度だけ: `npx @puppeteer/browsers install chrome-headless-shell@156.0.8078.47 --path ~/.cache/puppeteer`(無いときは `mermaid2png` が正確なコマンドを表示する) |
+| Python 3.9 以上 | `scripts/install.py` だけに使う(標準ライブラリのみ) |
 
 ## 使用例
 
 ```bash
-SKILL=skills/claude/gospelo-mermaid-plus
+CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 
 # 1. テーマ適用プロンプトを生成し、LLM 経由でカラースキームを適用する
-python $SKILL/scripts/apply_theme.py docs/architecture.md > /tmp/theme-prompt.md
+node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. テーマ適用済みブロックを PNG 化し、ソースを <details> に折り畳む
-python $SKILL/scripts/mermaid2png.py docs/architecture.md
+node $CLI mermaid2png docs/architecture.md
 
 # 3. 書き換えられた Markdown と生成画像をコミットする
 git add docs/architecture.md docs/images/
@@ -136,10 +145,10 @@ OpenCode 専用のスキルコピーは用意していませんし、必要も�
 
 ```bash
 cd mermaid-plus/skills/claude
-zip -r gospelo-mermaid-plus.zip gospelo-mermaid-plus -x "*__pycache__*" -x "*.DS_Store"
+zip -r gospelo-mermaid-plus.zip gospelo-mermaid-plus -x "*/node_modules/*" -x "*__pycache__*" -x "*.DS_Store"
 ```
 
-受け取った側は任意の場所で unzip してインストーラーを実行します:
+受け取った側は任意の場所で unzip してインストーラーを実行します(`npm ci` も実行されます):
 
 ```bash
 unzip gospelo-mermaid-plus.zip
@@ -170,9 +179,14 @@ mermaid-plus/
     └── claude/
         ├── gospelo-mermaid-plus/
         │   ├── SKILL.md            # Agent Skill 定義とドキュメント本体
+        │   ├── src/
+        │   │   ├── cli/main.ts     # CLI: apply-theme、mermaid2png
+        │   │   ├── theme.ts        # テーマ適用プロンプト生成
+        │   │   ├── color.ts        # CIELAB によるアクセント色の導出
+        │   │   └── mermaid2png.ts  # Mermaid → PNG レンダラー(mermaid-arch)
+        │   ├── tests/              # node --test(npm test)
+        │   ├── vendor/             # mermaid-arch の tarball(npm 未公開)
         │   ├── scripts/
-        │   │   ├── apply_theme.py  # テーマ適用プロンプト生成
-        │   │   ├── mermaid2png.py  # Mermaid → PNG レンダラー
         │   │   └── install.py      # スキル発見パスへのインストーラー
         │   └── references/
         │       └── color-scheme.md # パレット全体・推奨アイコン・上書きポリシー

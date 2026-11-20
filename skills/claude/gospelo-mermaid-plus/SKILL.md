@@ -258,10 +258,3 @@ All other FA6 Free Solid icons work with `fa:fa-*`.
 - **Icons blank in PNG** — Check the blacklist above; stick to FA6 Free Solid.
 - **Block skipped ("already converted")** — Remove the `![diagram]` + `<details>`
   wrapper above the block and re-run.
-
-## Python scripts (legacy)
-
-`scripts/apply_theme.py` and `scripts/mermaid2png.py` are the earlier
-Python versions (rendering via Mermaid CLI `mmdc`).  They are kept as the
-reference for the parity tests in `tests/` and are no longer the
-recommended entry point.

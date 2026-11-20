@@ -14,7 +14,7 @@ description: >
 # Markdown → Backlog Issue Skill
 
 Posts a Markdown document — including local images such as the `images/`
-directory produced by gospelo-mermaid-plus's `mermaid2png.py` — to a Backlog
+directory produced by gospelo-mermaid-plus's `mermaid2png` — to a Backlog
 issue in one command.
 
 ## Configuration
@@ -75,7 +75,8 @@ python <skill-path>/scripts/md2backlog.py doc.md --dry-run
 **Backlog cannot display ```mermaid code blocks at all** (unlike GitHub), so
 pass `--render` whenever the document still contains raw mermaid blocks.
 It copies the Markdown to a temp directory, renders every block via the
-sibling gospelo-mermaid-plus skill's `mermaid2png.py`, and posts the rendered
+sibling gospelo-mermaid-plus skill's `mermaid2png` command (needs Node.js
+>= 22.18 and that skill's `npm ci`), and posts the rendered
 copy — both the rendered diagrams and pre-existing regular images are
 uploaded. The original file is never modified.
 
@@ -94,7 +95,7 @@ uploaded. The original file is never modified.
 # One command: render all mermaid blocks in a temp copy, then post
 python <this-skill>/scripts/md2backlog.py docs/design.md --render
 
-# Or, if the document was already converted by mermaid2png.py (images/ committed):
+# Or, if the document was already converted by mermaid2png (images/ committed):
 python <this-skill>/scripts/md2backlog.py docs/design.md
 ```
 

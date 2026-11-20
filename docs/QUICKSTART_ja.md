@@ -10,9 +10,9 @@ For the English version, see [QUICKSTART.md](QUICKSTART.md).
 
 | 依存 | 必須 | 備考 |
 |---|---|---|
-| Python 3.9 以上 | はい | 標準ライブラリのみ。pip パッケージは不要 |
-| Node.js 18 以上 | PNG化する場合 | |
-| Mermaid CLI (`mmdc`) | 推奨 | `npm install -g @mermaid-js/mermaid-cli` — 未導入でも `npx` フォールバックで動作します(初回は遅い) |
+| Node.js 22.18 以上 | はい | TypeScript の CLI をそのまま実行します。依存はインストーラーが `npm ci` で入れます |
+| Python 3.9 以上 | インストーラーに | 標準ライブラリのみ。pip パッケージは不要 |
+| chrome-headless-shell | PNG化する場合 | 一度だけ: `npx @puppeteer/browsers install chrome-headless-shell@156.0.8078.47 --path ~/.cache/puppeteer` — 無いときは `mermaid2png` がこのコマンドを表示します |
 
 ## インストール
 
@@ -102,16 +102,16 @@ opencode run -m <provider/model> "List the names of the agent skills available i
 
 ## 使い方
 
-スクリプトは2つで、通常この順に実行します:
+コマンドは2つで、通常この順に実行します:
 
 ```bash
-SKILL=.claude/skills/gospelo-mermaid-plus
+CLI=.claude/skills/gospelo-mermaid-plus/src/cli/main.ts
 
 # 1. カラースキーム適用: エージェントがテーマ適用に使うプロンプトを生成する
-python $SKILL/scripts/apply_theme.py docs/architecture.md
+node $CLI apply-theme docs/architecture.md
 
 # 2. PNG化して mermaid ソースを <details> に折り畳む(FAアイコンが表示されないGitHub向け)
-python $SKILL/scripts/mermaid2png.py docs/architecture.md
+node $CLI mermaid2png docs/architecture.md
 ```
 
 エージェント経由で使う場合、これらを手動実行することはほとんどありません — エージェントが [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) を読んで両ステップを自動処理します。詳細とトラブルシューティングは [README](../README_ja.md) を参照してください。

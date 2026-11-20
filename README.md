@@ -1,6 +1,6 @@
 # gospelo-mermaid-plus
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-CLI-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/mermaid-js/mermaid-cli) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot,_Codex,_OpenCode-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-1E90FF.svg?style=flat)](https://github.com/gospelo-dev/mermaid-plus/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.9+-1E90FF.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![Node.js](https://img.shields.io/badge/Node.js-22.18+-1E90FF.svg?style=flat&logo=nodedotjs&logoColor=white)](https://nodejs.org/) [![Mermaid](https://img.shields.io/badge/Mermaid-12_(ELK)-FF3670.svg?style=flat&logo=mermaid&logoColor=white)](https://github.com/gospelo-dev/mermaid-arch) [![Agent Skill](https://img.shields.io/badge/Agent_Skill-Claude_Code,_Copilot,_Codex,_OpenCode-7B3FF2.svg?style=flat)](https://docs.claude.com/en/docs/claude-code/skills)
 
 <p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/hero.jpg" alt="Mermaid Plus — themed, GitHub-ready PNGs for your Mermaid diagrams" width="820"></p>
 
@@ -19,14 +19,16 @@ New here? See the [Quickstart](https://github.com/gospelo-dev/mermaid-plus/blob/
 
 ## Tools
 
-### `apply_theme.py` — LLM-assisted theming
+Both tools are commands of one TypeScript CLI that Node.js runs directly (no build step). Rendering uses [`@gospelo/mermaid-arch`](https://github.com/gospelo-dev/mermaid-arch): Mermaid 12 with the ELK layout, AWS architecture icons, and Font Awesome Free 6.
+
+### `apply-theme` — LLM-assisted theming
 
 Extracts all ```` ```mermaid ```` blocks from a Markdown file and prints a self-contained prompt to stdout. Feed that prompt to an LLM (e.g. Claude) and it returns the same blocks with the repository color scheme applied — `classDef`, `linkStyle`, subgraph `style`, and `%%{init}` directives matching the palette in [references/color-scheme.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/references/color-scheme.md).
 
 Why an LLM instead of regex? Correct Mermaid styling requires understanding diagram structure — which links are dashed vs. solid, which subgraphs are primary, and 0-based `linkStyle` indices in declaration order. An LLM applies the theme semantically; a regex tool gets these wrong.
 
 ```bash
-python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/theme-prompt.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tmp/theme-prompt.md
 # Feed the prompt to your LLM, then replace each mermaid block with the themed version
 ```
 
@@ -34,8 +36,9 @@ python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md > /tmp/t
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to the color-scheme reference file |
 | `--accent '#RRGGBB'` | none (default teal `#0D9488`) | Custom accent color. Rebuilds the whole scheme from one hex color using CIELAB color science |
+| `--icons-zip ZIP` | none | AWS icon package zip. When blocks use `aws:` icons, the prompt lists each icon's AWS category color |
 
-With `--accent`, the color scheme embedded in the prompt is regenerated from a single accent color. Links and subgraph strokes take the color you pass, and the light subgraph fill is derived in CIELAB (a perceptually uniform space, so lightness and hue stay consistent). If the color has low contrast on white, the script warns on stderr and continues.
+With `--accent`, the color scheme embedded in the prompt is regenerated from a single accent color. Links and subgraph strokes take the color you pass, and the light subgraph fill is derived in CIELAB (a perceptually uniform space, so lightness and hue stay consistent). If the color has low contrast on white, the command warns on stderr and continues.
 
 <p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/cielab-accent-derivation.jpg" alt="CIELAB accent derivation — how one accent color becomes a matching subgraph tint" width="820"></p>
 
@@ -43,14 +46,14 @@ Four steps: keep the hue direction, drop chroma to 5, lift lightness to `L*=98`,
 
 ```bash
 # Generate a theming prompt using your brand color
-python skills/claude/gospelo-mermaid-plus/scripts/apply_theme.py doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md --accent '#1E90FF' > /tmp/theme-prompt.md
 ```
 
-The script never modifies your file — the LLM's response is what gets applied.
+The command never modifies your file — the LLM's response is what gets applied.
 
-### `mermaid2png.py` — PNG rendering with `<details>` fold
+### `mermaid2png` — PNG rendering with `<details>` fold
 
-Finds every ```` ```mermaid ```` block, renders it to PNG via Mermaid CLI (`mmdc`), saves the image to an `images/` directory next to the Markdown file, and rewrites each block in place as:
+Finds every ```` ```mermaid ```` block, renders it to PNG with mermaid-arch (one headless browser for all blocks), saves the image to an `images/` directory next to the Markdown file, and rewrites each block in place as:
 
 ````markdown
 ![diagram](images/doc-1.png)
@@ -66,16 +69,22 @@ graph LR
 ````
 
 ```bash
-python skills/claude/gospelo-mermaid-plus/scripts/mermaid2png.py doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 ```
 
 | Flag | Default | Description |
 |---|---|---|
-| `--scale N` | `2` | Render scale factor (2 = retina) |
-| `--puppeteer-config PATH` | auto | Puppeteer JSON config for `mmdc` (Chromium is auto-detected) |
-| `--dry-run` | off | Rewrite Markdown without rendering PNGs |
+| `--scale N` | `2` | PNG pixel ratio (2 = retina) |
+| `--dry-run` | off | Report the planned output paths only; write nothing |
+| `--icons-zip ZIP` | none | AWS icon package zip (`Icon-package_*.zip`); needed when blocks use `aws:` icons |
+| `--chrome PATH` | auto | chrome-headless-shell executable |
+| `--no-sandbox` | off | Start the browser with `--no-sandbox` (containers, root) |
+| `--background COLOR` | `transparent` | PNG background: a CSS color or `transparent` |
+| `--max-width PX` | none | Shrink diagrams wider than PX CSS pixels |
 
-The script is **idempotent** — blocks that were already converted are skipped, so running it twice on the same file is safe. Blocks that fail to render are left untouched.
+Flowcharts are laid out with ELK by default (Mermaid 12); set `layout: dagre` in a block's front matter to use dagre instead.
+
+The command is **idempotent** — blocks that were already converted are skipped, so running it twice on the same file is safe. Blocks that fail to render are left untouched.
 
 ## Prerequisites
 
@@ -83,21 +92,21 @@ Supported platforms: **macOS / Linux / WSL2**
 
 | Dependency | Install |
 |---|---|
-| Node.js ≥ 18 | pre-installed in most environments |
-| Mermaid CLI (`mmdc`) | `npm install -g @mermaid-js/mermaid-cli` |
-| Chromium | auto-detected (Playwright-bundled or system); override via `--puppeteer-config` |
-| Python ≥ 3.9 | pre-installed (standard library only, no pip packages) |
+| Node.js ≥ 22.18 | runs the TypeScript sources directly (type stripping) |
+| npm dependencies | `npm ci --omit=dev` in the skill folder — `scripts/install.py` runs it |
+| chrome-headless-shell | once: `npx @puppeteer/browsers install chrome-headless-shell@156.0.8078.47 --path ~/.cache/puppeteer` (`mermaid2png` prints the exact command when it is missing) |
+| Python ≥ 3.9 | only for `scripts/install.py` (standard library only) |
 
 ## Usage example
 
 ```bash
-SKILL=skills/claude/gospelo-mermaid-plus
+CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 
 # 1. Generate the theming prompt and apply the color scheme via your LLM
-python $SKILL/scripts/apply_theme.py docs/architecture.md > /tmp/theme-prompt.md
+node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. Render the themed blocks to PNG and fold the source into <details>
-python $SKILL/scripts/mermaid2png.py docs/architecture.md
+node $CLI mermaid2png docs/architecture.md
 
 # 3. Commit the rewritten Markdown and generated images
 git add docs/architecture.md docs/images/
@@ -136,10 +145,10 @@ To hand the skill to someone without repo access:
 
 ```bash
 cd mermaid-plus/skills/claude
-zip -r gospelo-mermaid-plus.zip gospelo-mermaid-plus -x "*__pycache__*" -x "*.DS_Store"
+zip -r gospelo-mermaid-plus.zip gospelo-mermaid-plus -x "*/node_modules/*" -x "*__pycache__*" -x "*.DS_Store"
 ```
 
-The recipient unzips it anywhere and runs the installer:
+The recipient unzips it anywhere and runs the installer (it also runs `npm ci`):
 
 ```bash
 unzip gospelo-mermaid-plus.zip
@@ -170,9 +179,14 @@ mermaid-plus/
     └── claude/
         ├── gospelo-mermaid-plus/
         │   ├── SKILL.md            # Agent Skill definition and full documentation
+        │   ├── src/
+        │   │   ├── cli/main.ts     # CLI: apply-theme, mermaid2png
+        │   │   ├── theme.ts        # Theming prompt generator
+        │   │   ├── color.ts        # CIELAB accent derivation
+        │   │   └── mermaid2png.ts  # Mermaid → PNG renderer (mermaid-arch)
+        │   ├── tests/              # node --test (npm test)
+        │   ├── vendor/             # mermaid-arch tarball (not on npm)
         │   ├── scripts/
-        │   │   ├── apply_theme.py  # Theming prompt generator
-        │   │   ├── mermaid2png.py  # Mermaid → PNG renderer
         │   │   └── install.py      # Installer for agent skill discovery paths
         │   └── references/
         │       └── color-scheme.md # Full palette, icon recommendations, override policy

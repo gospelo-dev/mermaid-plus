@@ -21,12 +21,11 @@ Usage:
     python install.py --user              # install user-wide (all projects)
     python install.py --symlink           # symlink instead of copy (for development)
     python install.py --force             # replace an existing installation
-    python install.py --no-npm            # skip `npm ci` (Python tools only)
+    python install.py --no-npm            # skip `npm ci` (run it yourself later)
 
 After copying, `npm ci --omit=dev` installs the dependencies of the
-TypeScript tools (src/, Node >= 22.18) in the installed folder; with
---symlink it runs once in this source folder.  Without npm the Python
-tools still work.
+tools (src/, Node >= 22.18) in the installed folder; with --symlink it
+runs once in this source folder.  The tools do not run until it has.
 """
 
 import argparse
@@ -85,20 +84,20 @@ def install_into(root, symlink, force):
 
 
 def npm_ci(folder):
-    """Install the TypeScript tools' dependencies; warn (do not fail) when
-    npm is missing or fails, since the Python tools do not need them."""
+    """Install the tools' dependencies; warn (do not fail) when npm is
+    missing or fails, so the copy itself is kept and npm can be run later."""
     if not os.path.isfile(os.path.join(folder, "package-lock.json")):
         return
     npm = shutil.which("npm")
     if not npm:
-        print("  WARN  npm not found: TypeScript tools need Node >= 22.18 and "
+        print("  WARN  npm not found: the tools need Node >= 22.18 and "
               f"`npm ci --omit=dev` in {folder}")
         return
     print(f"  NPM   npm ci --omit=dev  ({folder})")
     sys.stdout.flush()
     result = subprocess.run([npm, "ci", "--omit=dev", "--no-audit", "--no-fund"], cwd=folder)
     if result.returncode != 0:
-        print(f"  WARN  npm ci failed in {folder}; TypeScript tools will not run")
+        print(f"  WARN  npm ci failed in {folder}; the tools will not run")
 
 
 def main():
@@ -129,7 +128,7 @@ def main():
     parser.add_argument(
         "--no-npm",
         action="store_true",
-        help="Do not run `npm ci` for the TypeScript tools",
+        help="Do not run `npm ci` (run it in the installed folder yourself)",
     )
     args = parser.parse_args()
 
