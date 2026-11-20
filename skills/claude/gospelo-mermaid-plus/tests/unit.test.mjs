@@ -4,7 +4,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { mermaidBlocks } from '@gospelo/mermaid-arch'
-import { buildThemePrompt, deriveLightTint, normalizeAccent, processMarkdown, usesIcons } from '../src/index.ts'
+import {
+  applyAccentToScheme, buildThemePrompt, DEFAULT_SCHEME, deriveGroupBorder, deriveLightTint, hexToLab,
+  normalizeAccent, processMarkdown, readScheme, usesIcons,
+} from '../src/index.ts'
 
 test('normalizeAccent', () => {
   assert.equal(normalizeAccent("'0d9488'"), '#0D9488')
@@ -15,6 +18,29 @@ test('normalizeAccent', () => {
 
 test('deriveLightTint keeps grey neutral', () => {
   assert.equal(deriveLightTint('#808080'), '#F9F9F9')
+})
+
+test('deriveGroupBorder gives the default border back for its own hue', () => {
+  assert.equal(deriveGroupBorder('#C7C7F1'), '#C7C7F1')
+})
+
+test('deriveGroupBorder keeps the lightness of the default border', () => {
+  for (const accent of ['#0D9488', '#E11D48', '#2563EB', '#FACC15', '#808080']) {
+    const [L] = hexToLab(deriveGroupBorder(accent))
+    assert.ok(Math.abs(L - 81.48) < 0.6, `${accent} -> L* ${L}`)
+  }
+  const [, a, b] = hexToLab(deriveGroupBorder('#808080'))
+  assert.ok(Math.hypot(a, b) < 0.5, 'grey stays neutral')
+})
+
+test('--accent recolors solid links and the group border, not dashed links or text', () => {
+  const scheme = applyAccentToScheme(readScheme(DEFAULT_SCHEME), '#E11D48')
+  const border = deriveGroupBorder('#E11D48')
+  assert.match(scheme, /linkStyle 0,1,2 stroke:#E11D48,stroke-width:2px/)
+  assert.match(scheme, /linkStyle 3 {5}stroke:#2C2C2C,stroke-width:1\.5px,stroke-dasharray:4 4/)
+  assert.ok(scheme.includes(`style Main fill:none,stroke:${border},stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C`))
+  assert.doesNotMatch(scheme, /#333333|#C7C7F1/i)
+  assert.match(scheme, /Accent color — normal data\/control flow/)
 })
 
 const ICON_DOC = '```mermaid\nflowchart LR\n  fn@{ icon: "aws:lambda", label: "Fn" } --> db@{ icon: "aws:dynamodb" }\n```\n'

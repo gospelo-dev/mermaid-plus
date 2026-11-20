@@ -78,13 +78,29 @@ export function labToHex(L: number, a: number, bVal: number): string {
   return '#' + labToLinearRgb(L, a, bVal).map(channel).join('')
 }
 
-/** A very light tint of the accent for subgraph fills: L* 98, chroma about
- * 5, same hue (reduced until it fits sRGB). Grey input gives near-white. */
+/** A very light tint of the accent: L* 98, chroma about 5, same hue
+ * (reduced until it fits sRGB). Grey input gives near-white. */
 export function deriveLightTint(accentHex: string): string {
+  return deriveTint(accentHex, 98.0, 5.0)
+}
+
+// L* and chroma of the default group border #C7C7F1 (the dashed border of
+// architecture-beta groups, hsl(240, 60%, 86.3%)).
+const GROUP_BORDER_L = 81.48
+const GROUP_BORDER_CHROMA = 22.31
+
+/** The dashed group (subgraph) border for an accent: the accent's hue at
+ * the lightness and chroma of the default border #C7C7F1 (chroma reduced
+ * until it fits sRGB). Grey input gives a neutral grey of that lightness. */
+export function deriveGroupBorder(accentHex: string): string {
+  return deriveTint(accentHex, GROUP_BORDER_L, GROUP_BORDER_CHROMA)
+}
+
+/** The accent's hue at lightness `targetL` and chroma `targetChroma`,
+ * the chroma reduced by binary search until the color fits sRGB. */
+function deriveTint(accentHex: string, targetL: number, targetChroma: number): string {
   const [, a, bVal] = hexToLab(accentHex)
   const chroma = Math.sqrt(a * a + bVal * bVal)
-  const targetL = 98.0
-  const targetChroma = 5.0
 
   if (chroma < 0.5) return labToHex(targetL, 0.0, 0.0)
 

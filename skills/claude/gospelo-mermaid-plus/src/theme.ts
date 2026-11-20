@@ -7,30 +7,30 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { iconNamesInDiagrams } from '@gospelo/mermaid-arch'
 import type { IconCategory, MermaidBlock } from '@gospelo/mermaid-arch'
-import { deriveLightTint } from './color.ts'
+import { deriveGroupBorder } from './color.ts'
 
 /** references/color-scheme.md of the bundled skill. */
 export const DEFAULT_SCHEME = fileURLToPath(
   new URL('../references/color-scheme.md', import.meta.url),
 )
 
-// Colors of the default scheme that --accent replaces.
-const DEFAULT_ACCENT = '#0D9488'
-const DEFAULT_TINT = '#F0FDFA'
+// Colors of the default scheme that --accent replaces: the solid links
+// (dashed links use the text color #2C2C2C, so they stay black) and the
+// dashed group border.
+const DEFAULT_ACCENT = '#333333'
+const DEFAULT_GROUP_BORDER = '#C7C7F1'
 
-/** Put `accentHex` (and its derived light tint) in place of the default
- * teal, and drop the word "teal" so the prompt does not contradict itself. */
+/** Put `accentHex` in place of the default solid-link black, and the
+ * border derived from it in place of the default lavender group border. */
 export function applyAccentToScheme(schemeText: string, accentHex: string): string {
-  const tintHex = deriveLightTint(accentHex)
+  const borderHex = deriveGroupBorder(accentHex)
   return schemeText
     .replaceAll(DEFAULT_ACCENT, accentHex)
     .replaceAll(DEFAULT_ACCENT.toLowerCase(), accentHex)
-    .replaceAll(DEFAULT_TINT, tintHex)
-    .replaceAll(DEFAULT_TINT.toLowerCase(), tintHex)
-    .replace(/\bTeal\b/g, 'Accent color')
-    .replace(/\bteal\b/g, 'accent color')
-    .replace(/\bLight teal\b/g, 'Light accent tint')
-    .replace(/\bLight Teal\b/g, 'Light Accent Tint')
+    .replaceAll(DEFAULT_GROUP_BORDER, borderHex)
+    .replaceAll(DEFAULT_GROUP_BORDER.toLowerCase(), borderHex)
+    .replace(/\| Black — normal data\/control flow \|/g, '| Accent color — normal data/control flow |')
+    .replace(/\| Light lavender dashed border,/g, '| Light accent dashed border,')
 }
 
 export interface ThemePromptOptions {
@@ -109,10 +109,10 @@ any other text or explanation.
 2. For **flowchart / graph** blocks:
    - Add \`classDef node\` with the palette values and apply it to ALL node IDs
      via \`class A,B,C node\`.
-   - Add \`style <subgraph_id> ...\` for each subgraph (first = primary,
-     rest = neutral) unless a custom palette override is already present.
+   - Add \`style <subgraph_id> ...\` with the group style for each subgraph
+     (every subgraph alike) unless a custom palette override is already present.
    - Add \`linkStyle\` entries: solid accent color for normal flow arrows (\`-->\`),
-     dashed grey for dotted/dashed arrows (\`-.->\`). Indices are
+     dashed for dotted/dashed arrows (\`-.->\`). Indices are
      declaration-order, 0-based.
    - If the block already has \`classDef node\` / \`linkStyle\`, update values
      to match the palette rather than duplicating.
