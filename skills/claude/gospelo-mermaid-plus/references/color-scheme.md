@@ -35,6 +35,29 @@ linkStyle 3     stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
 - Solid teal = normal flow
 - Dashed grey = read-only / monitoring / non-destructive
 
+### Dashed links need `elk.lineHops: false`
+
+Mermaid 12 lays flowcharts out with ELK by default and draws a small arc
+("line hop") where two links cross. Mermaid 12.3.0 then rewrites the
+`stroke-dasharray` of a link that carries a hop, so a **dashed link turns
+solid** — keeping its grey color, with no error
+([mermaid-js/mermaid#8636](https://github.com/mermaid-js/mermaid/issues/8636)).
+Whenever a flowchart has a dashed `linkStyle`, turn the hops off in its
+front matter (merge into an existing `config:` rather than adding a second
+front matter block):
+
+```
+---
+config:
+  elk:
+    lineHops: false
+---
+flowchart LR
+```
+
+Only the arcs at crossings go away; the layout stays the same. Remove this
+once a Mermaid release with the fix is in use.
+
 ## sequenceDiagram init directive
 
 Paste as-is before `sequenceDiagram`:
@@ -98,6 +121,11 @@ Paste as-is before `sequenceDiagram`:
 ### flowchart
 
 ```mermaid
+---
+config:
+  elk:
+    lineHops: false
+---
 flowchart TB
     A["fa:fa-terminal ノード A"]
     subgraph Main["主役グループ"]

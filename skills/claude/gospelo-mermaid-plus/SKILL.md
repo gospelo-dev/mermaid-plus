@@ -97,6 +97,9 @@ The full reference is in `references/color-scheme.md`.  Key values:
 - `classDef node` applied to ALL nodes in a flowchart
 - Solid accent-color links for normal flow (`-->`), dashed grey for non-destructive (`-.->`)
 - `linkStyle` indices are declaration-order, 0-based — always verify after editing
+- A flowchart with a dashed `linkStyle` gets `config.elk.lineHops: false` in
+  its front matter: in Mermaid 12.3.0 a dashed link that carries a line hop
+  is drawn solid ([#8636](https://github.com/mermaid-js/mermaid/issues/8636))
 - sequenceDiagram uses `%%{init: {'theme':'base', 'themeVariables': {...}}}%%`
 - `fa:fa-*` icons in flowchart node labels only (not in sequenceDiagram)
 - The scheme sets no font. If a diagram must set `themeVariables.fontFamily`
@@ -260,5 +263,12 @@ All other FA6 Free Solid icons work with `fa:fa-*`.
   pass `--icons-zip`, and check the icon name (the error suggests close
   matches).
 - **Icons blank in PNG** — Check the blacklist above; stick to FA6 Free Solid.
+- **A dashed link is drawn solid (color and width still right)** — The link
+  crosses another one and carries a line hop; Mermaid 12.3.0 then replaces
+  its `stroke-dasharray`
+  ([mermaid-js/mermaid#8636](https://github.com/mermaid-js/mermaid/issues/8636)).
+  Add `lineHops: false` under `config.elk` in the block's front matter
+  (merge into an existing `config:`), delete the PNG and re-run. Only the
+  arcs at crossings go away; the layout stays the same.
 - **Block skipped ("already converted")** — Delete the block's PNG and re-run;
   it is rendered again in place.
