@@ -4,3 +4,9 @@
 development/
 scratch/
 .backlog.env
+/.claude/skills/
+/scratch/
+/worktrees/
+/development/
+/.claude/settings.json
+/.claude/settings.local.json
