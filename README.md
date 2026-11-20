@@ -25,7 +25,7 @@ Both tools are commands of one TypeScript CLI that Node.js runs directly (no bui
 
 Extracts all ```` ```mermaid ```` blocks from a Markdown file and prints a self-contained prompt to stdout. Feed that prompt to an LLM (e.g. Claude) and it returns the same blocks with the repository color scheme applied — `classDef`, `linkStyle`, subgraph `style`, and `%%{init}` directives matching the palette in [references/color-scheme.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/references/color-scheme.md).
 
-Why an LLM instead of regex? Correct Mermaid styling requires understanding diagram structure — which links are dashed vs. solid, which subgraphs are primary, and 0-based `linkStyle` indices in declaration order. An LLM applies the theme semantically; a regex tool gets these wrong.
+Why an LLM instead of regex? Correct Mermaid styling requires understanding diagram structure — which links are dashed vs. solid, which IDs are subgraphs, and 0-based `linkStyle` indices in declaration order. An LLM applies the theme semantically; a regex tool gets these wrong.
 
 ```bash
 node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tmp/theme-prompt.md
@@ -35,14 +35,12 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tm
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to the color-scheme reference file |
-| `--accent '#RRGGBB'` | none (default teal `#0D9488`) | Custom accent color. Rebuilds the whole scheme from one hex color using CIELAB color science |
+| `--accent '#RRGGBB'` | none (monotone) | Custom accent color for solid links; the group border is derived from it using CIELAB color science |
 | `--icons-zip ZIP` | none | AWS icon package zip. When blocks use `aws:` icons, the prompt lists each icon's AWS category color |
 
-With `--accent`, the color scheme embedded in the prompt is regenerated from a single accent color. Links and subgraph strokes take the color you pass, and the light subgraph fill is derived in CIELAB (a perceptually uniform space, so lightness and hue stay consistent). If the color has low contrast on white, the command warns on stderr and continues.
+The default scheme is near-monotone: black links (solid = normal flow, dashed = read-only / monitoring — the meaning is in the line pattern, not the color), white nodes, and every subgraph drawn like an `architecture-beta` group — no fill and a light lavender dashed border (`#C7C7F1`). Icons and labels carry the color.
 
-<p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/cielab-accent-derivation.jpg" alt="CIELAB accent derivation — how one accent color becomes a matching subgraph tint" width="820"></p>
-
-Four steps: keep the hue direction, drop chroma to 5, lift lightness to `L*=98`, and binary-search back into the sRGB gamut if the result falls outside it.
+With `--accent`, solid links take the color you pass, and the group border is derived from it in CIELAB (a perceptually uniform space): the accent's hue at the lightness and chroma of the default `#C7C7F1`, with the chroma reduced by binary search if the result falls outside sRGB. So every accent gives a border as light as the default. Dashed links and text stay black. If the color has low contrast on white, the command warns on stderr and continues.
 
 ```bash
 # Generate a theming prompt using your brand color
@@ -69,7 +67,7 @@ graph LR
 ````
 
 ```bash
-node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md --background white
 ```
 
 | Flag | Default | Description |
@@ -79,7 +77,7 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 | `--icons-zip ZIP` | none | AWS icon package zip (`Icon-package_*.zip`); needed when blocks use `aws:` icons |
 | `--chrome PATH` | auto | chrome-headless-shell executable |
 | `--no-sandbox` | off | Start the browser with `--no-sandbox` (containers, root) |
-| `--background COLOR` | `transparent` | PNG background: a CSS color or `transparent` |
+| `--background COLOR` | `transparent` | PNG background: a CSS color or `transparent`. Use `white` for diagrams themed by `apply-theme` (their labels have white backgrounds, and they stay readable in GitHub's dark mode) |
 | `--max-width PX` | none | Shrink diagrams wider than PX CSS pixels |
 
 Flowcharts are laid out with ELK by default (Mermaid 12); set `layout: dagre` in a block's front matter to use dagre instead.
@@ -106,7 +104,7 @@ CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. Render the themed blocks to PNG and fold the source into <details>
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 
 # 3. Commit the rewritten Markdown and generated images
 git add docs/architecture.md docs/images/

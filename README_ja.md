@@ -25,7 +25,7 @@ GitHub は Markdown レンダリング時に外部フォント・`<style>` タ�
 
 Markdown ファイルからすべての ```` ```mermaid ```` ブロックを抽出し、自己完結したプロンプトを標準出力に出力します。このプロンプトを LLM(Claude など)に渡すと、[references/color-scheme.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/references/color-scheme.md) のパレットに沿った `classDef`・`linkStyle`・subgraph `style`・`%%{init}` ディレクティブを適用済みの Mermaid コードが返ってきます。
 
-正規表現ではなく LLM を使う理由: 正しい Mermaid スタイリングには図の構造理解が必要です — どのリンクが破線でどれが実線か、どの subgraph が主役か、宣言順 0 始まりの `linkStyle` 番号など。LLM は意味を踏まえてテーマを適用できますが、正規表現ツールはここを間違えます。
+正規表現ではなく LLM を使う理由: 正しい Mermaid スタイリングには図の構造理解が必要です — どのリンクが破線でどれが実線か、どの ID が subgraph か、宣言順 0 始まりの `linkStyle` 番号など。LLM は意味を踏まえてテーマを適用できますが、正規表現ツールはここを間違えます。
 
 ```bash
 node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tmp/theme-prompt.md
@@ -35,14 +35,12 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tm
 | フラグ | デフォルト | 説明 |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | カラースキームのリファレンスファイルのパス |
-| `--accent '#RRGGBB'` | なし(既定のティール `#0D9488`) | アクセントカラーを指定。CIELAB 色空間でスキーム全体を自動生成する |
+| `--accent '#RRGGBB'` | なし(モノトーン) | 実線のリンクの色を指定。グループの枠線は、CIELAB 色空間でこの色から導出する |
 | `--icons-zip ZIP` | なし | AWS アイコンパッケージの zip。ブロックが `aws:` アイコンを使うとき、各アイコンの AWS カテゴリ色をプロンプトに載せる |
 
-`--accent` を使うと、アクセント色1色からプロンプト内のカラースキームを丸ごと組み替えられます。リンク線とサブグラフ枠線は指定色に置き換わり、subgraph の塗りつぶし用の淡色は CIELAB(知覚的な明度・色相を保つ色空間)で自動導出されます。白背景でのコントラストが不足する色を渡した場合は stderr に警告が出ます(処理は継続します)。
+既定のカラースキームはモノトーンに近いものです: リンクは黒(実線 = 通常の流れ、点線 = 読み取り専用・監視。意味は色ではなく線の種類で表す)、ノードは白、subgraph はどれも `architecture-beta` のグループと同じく、塗りなしで淡いラベンダーの点線の枠(`#C7C7F1`)です。色はアイコンとラベルが担います。
 
-<p align="center"><img src="https://raw.githubusercontent.com/gospelo-dev/mermaid-plus/main/assets/cielab-accent-derivation.jpg" alt="CIELAB accent derivation — アクセント色1色から subgraph 用の淡色を導出する仕組み" width="820"></p>
-
-色相の方向を保ったまま明度を `L*=98` まで持ち上げ、彩度を 5 まで落とし、sRGB の色域外なら二分探索で内側にクランプする、という4ステップです。
+`--accent` を使うと、実線のリンクは指定した色になり、グループの枠線は CIELAB(知覚的に均等な色空間)でその色から導出されます: 指定した色の色相で、明度と彩度は既定の `#C7C7F1` と同じにし、sRGB の色域外なら二分探索で彩度を下げます。そのため、どの色を指定しても枠線は既定と同じくらい淡くなります。点線のリンクと文字は黒のままです。白背景でのコントラストが不足する色を渡した場合は stderr に警告が出ます(処理は継続します)。
 
 ```bash
 # ブランドカラーでテーマ適用プロンプトを生成する
@@ -69,7 +67,7 @@ graph LR
 ````
 
 ```bash
-node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md --background white
 ```
 
 | フラグ | デフォルト | 説明 |
@@ -79,7 +77,7 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 | `--icons-zip ZIP` | なし | AWS アイコンパッケージの zip(`Icon-package_*.zip`)。ブロックが `aws:` アイコンを使うときに必要 |
 | `--chrome PATH` | 自動 | chrome-headless-shell の実行ファイル |
 | `--no-sandbox` | オフ | ブラウザを `--no-sandbox` で起動する(コンテナ、root) |
-| `--background COLOR` | `transparent` | PNG の背景: CSS の色または `transparent` |
+| `--background COLOR` | `transparent` | PNG の背景: CSS の色または `transparent`。`apply-theme` でテーマを当てた図には `white` を使う(ラベルの背景が白で、GitHub のダークモードでも読める) |
 | `--max-width PX` | なし | PX(CSS ピクセル)より幅の広い図を縮小する |
 
 flowchart は既定で ELK でレイアウトされます(Mermaid 12)。dagre を使うときは、ブロックのフロントマターに `layout: dagre` を書きます。
@@ -106,7 +104,7 @@ CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. テーマ適用済みブロックを PNG 化し、ソースを <details> に折り畳む
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 
 # 3. 書き換えられた Markdown と生成画像をコミットする
 git add docs/architecture.md docs/images/

@@ -21,7 +21,7 @@ commands:
 
 apply-theme options:
   --scheme PATH        color-scheme reference (default: bundled references/color-scheme.md)
-  --accent '#RRGGBB'   accent color; replaces the default teal and derives a light tint (CIELAB)
+  --accent '#RRGGBB'   accent color for solid links; the group border is derived from it (CIELAB)
   --icons-zip ZIP      AWS icon zip; lists the category color of each icon the blocks use
 
 mermaid2png options:

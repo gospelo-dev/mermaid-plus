@@ -2,15 +2,19 @@
 
 ## Palette
 
+Near-monotone: black links, white nodes, and groups drawn like
+`architecture-beta` groups (no fill, light dashed border), so icons and
+labels carry the color.
+
 | Role | Value | Notes |
 |---|---|---|
 | Node fill | `#FFFFFF` | White background — works in both light/dark mode |
 | Node stroke | `#666666` (1.5 px) | Mid-grey |
 | Text | `#2C2C2C` | Near-black |
-| Accent link (solid) | `#0D9488` (2 px) | Teal — normal data/control flow |
-| Non-destructive link (dashed) | `#9CA3AF` (1.5 px, `4 4`) | Grey dashed — read-only / monitoring / side-effect-free paths |
-| Primary container fill/stroke | `#F0FDFA` / `#0D9488` | Light teal — highlight subgraph |
-| Neutral container fill/stroke | `#F8FAFC` / `#94A3B8` | Light grey — auxiliary subgraph |
+| Accent link (solid) | `#333333` (2 px) | Black — normal data/control flow |
+| Non-destructive link (dashed) | `#2C2C2C` (1.5 px, `4 4`) | Black dashed — read-only / monitoring / side-effect-free paths |
+| Group (subgraph) | fill `none` / stroke `#C7C7F1` (2 px, `8 8`) | Light lavender dashed border, as `architecture-beta` groups — every subgraph alike |
+| Label background | `#FFFFFF` | Edge labels and icon-node labels: white instead of Mermaid's grey `#CCCCCC` |
 
 ## flowchart classDef / style / linkStyle
 
@@ -18,29 +22,53 @@
 classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
 ```
 
-Subgraph styles (applied with `style <id> ...`):
+Subgraph styles (applied with `style <id> ...`, the same for every subgraph):
 
 ```
-style Main fill:#F0FDFA,stroke:#0D9488,color:#2C2C2C
-style Sub  fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
+style Main fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+style Sub  fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
 ```
 
 Link styles (indices are declaration-order, 0-based):
 
 ```
-linkStyle 0,1,2 stroke:#0D9488,stroke-width:2px
-linkStyle 3     stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+linkStyle 0,1,2 stroke:#333333,stroke-width:2px
+linkStyle 3     stroke:#2C2C2C,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 
-- Solid teal = normal flow
-- Dashed grey = read-only / monitoring / non-destructive
+- Solid = normal flow
+- Dashed = read-only / monitoring / non-destructive
+
+The meaning is in the line pattern, not the color, so it survives
+grayscale printing and color-blind viewing.
+
+### White label backgrounds (front matter)
+
+Mermaid paints a grey box (`#CCCCCC`) behind edge labels and the labels
+of icon nodes (`@{ icon: ... }`). Every flowchart sets it to white in its
+front matter, so labels read as plain text (as in `architecture-beta`)
+and a link passing behind an edge label breaks cleanly around it:
+
+```
+---
+config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
+---
+flowchart LR
+```
+
+Merge it into an existing `config:` (together with `elk.lineHops` below)
+rather than adding a second front matter block. Render such diagrams with
+`mermaid2png --background white`: on a transparent PNG the white label
+boxes would show in dark mode.
 
 ### Dashed links need `elk.lineHops: false`
 
 Mermaid 12 lays flowcharts out with ELK by default and draws a small arc
 ("line hop") where two links cross. Mermaid 12.3.0 then rewrites the
 `stroke-dasharray` of a link that carries a hop, so a **dashed link turns
-solid** — keeping its grey color, with no error
+solid** — keeping its color and width, with no error
 ([mermaid-js/mermaid#8636](https://github.com/mermaid-js/mermaid/issues/8636)).
 Whenever a flowchart has a dashed `linkStyle`, turn the hops off in its
 front matter (merge into an existing `config:` rather than adding a second
@@ -63,7 +91,7 @@ once a Mermaid release with the fix is in use.
 Paste as-is before `sequenceDiagram`:
 
 ```
-%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#0D9488', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#F0FDFA', 'noteBorderColor': '#0D9488', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F8FAFC', 'activationBorderColor': '#94A3B8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#F0FDFA', 'labelBoxBorderColor': '#0D9488', 'labelTextColor': '#2C2C2C'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F4F4F5', 'activationBorderColor': '#D4D4D8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#2C2C2C'}}}%%
 ```
 
 ## Palette mapping to sequenceDiagram themeVariables
@@ -71,10 +99,10 @@ Paste as-is before `sequenceDiagram`:
 | Palette role | themeVariable |
 |---|---|
 | Node fill `#FFFFFF` / stroke `#666666` / text `#2C2C2C` | `actorBkg` / `actorBorder` / `actorTextColor` |
-| Accent `#0D9488` | `signalColor` |
+| Accent `#333333` | `signalColor` |
 | Text `#2C2C2C` | `signalTextColor` |
-| Primary container `#F0FDFA` / `#0D9488` | `noteBkgColor` / `noteBorderColor` / `labelBoxBkgColor` / `labelBoxBorderColor` |
-| Neutral container `#F8FAFC` / `#94A3B8` | `activationBkgColor` / `activationBorderColor` |
+| Group `#FFFFFF` / `#C7C7F1` | `noteBkgColor` / `noteBorderColor` / `labelBoxBkgColor` / `labelBoxBorderColor` |
+| Light grey `#F4F4F5` / `#D4D4D8` | `activationBkgColor` / `activationBorderColor` |
 | Text `#2C2C2C` | `noteTextColor` / `loopTextColor` / `labelTextColor` |
 
 ## Icon guidelines (fa:fa-*)
@@ -123,6 +151,8 @@ Paste as-is before `sequenceDiagram`:
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---
@@ -142,12 +172,12 @@ flowchart TB
 
     classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
     class A,B,C,DB node
-    style Main fill:#F0FDFA,stroke:#0D9488,color:#2C2C2C
-    style Sub fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
+    style Main fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+    style Sub fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
 
-    %% normal flow = solid teal / non-destructive = dashed grey
-    linkStyle 0,1 stroke:#0D9488,stroke-width:2px
-    linkStyle 2 stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+    %% normal flow = solid / non-destructive = dashed
+    linkStyle 0,1 stroke:#333333,stroke-width:2px
+    linkStyle 2 stroke:#2C2C2C,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 
 Apply `class` to the ACTUAL node IDs in the diagram — never leave IDs
@@ -156,7 +186,7 @@ copy-pasted from another diagram.
 ### sequenceDiagram
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#0D9488', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#F0FDFA', 'noteBorderColor': '#0D9488', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F8FAFC', 'activationBorderColor': '#94A3B8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#F0FDFA', 'labelBoxBorderColor': '#0D9488', 'labelTextColor': '#2C2C2C'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F4F4F5', 'activationBorderColor': '#D4D4D8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#2C2C2C'}}}%%
 sequenceDiagram
     participant A as サービス A
     participant B as サービス B

@@ -46,7 +46,7 @@ properly themed Mermaid code — with `classDef`, `linkStyle`, subgraph
 ### Why use an LLM for theming
 
 Mermaid styling requires understanding diagram structure: which nodes exist,
-which links are dashed vs solid, which subgraphs are primary vs auxiliary.
+which links are dashed vs solid, which IDs are subgraphs.
 A regex-based tool can get the basics wrong (mis-counted linkStyle indices,
 missed node IDs inside subgraphs, etc.).  By generating a prompt with the
 full color-scheme reference and the raw blocks, the LLM can apply the theme
@@ -75,7 +75,7 @@ In practice, as an Agent Skill, the workflow is:
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to color-scheme reference file |
-| `--accent '#RRGGBB'` | (none — uses default teal) | Custom accent color. Auto-generates a complete color scheme from a single hex color using CIELAB color science. Replaces the default teal accent and derives a light tint for subgraph fills. Warns on stderr if the color has low contrast on white. |
+| `--accent '#RRGGBB'` | (none — monotone) | Custom accent color. Solid links take the color, and the dashed group border is derived from it in CIELAB (its hue at the lightness and chroma of the default `#C7C7F1`). Dashed links and text stay black. Warns on stderr if the color has low contrast on white. |
 | `--icons-zip ZIP` | (none) | AWS icon package zip. When blocks use `aws:` icons, the prompt lists each icon's AWS category color. |
 
 ### Color scheme summary
@@ -87,15 +87,18 @@ The full reference is in `references/color-scheme.md`.  Key values:
 | Role | Value |
 |---|---|
 | Node fill / stroke / text | `#FFFFFF` / `#666666` (1.5 px) / `#2C2C2C` |
-| Accent link (solid) | `#0D9488` (2 px) — normal data/control flow (override with `--accent`) |
-| Dashed link (grey) | `#9CA3AF` (1.5 px, `4 4`) — read-only / monitoring |
-| Primary subgraph | fill `#F0FDFA` / stroke `#0D9488` (auto-derived from `--accent`) |
-| Neutral subgraph | fill `#F8FAFC` / stroke `#94A3B8` |
+| Solid link | `#333333` (2 px) — normal data/control flow (override with `--accent`) |
+| Dashed link | `#2C2C2C` (1.5 px, `4 4`) — read-only / monitoring |
+| Group (every subgraph) | fill `none` / stroke `#C7C7F1` (2 px, dashed `8 8`), as `architecture-beta` groups (derived from `--accent`) |
 
 **Rules:**
 
 - `classDef node` applied to ALL nodes in a flowchart
-- Solid accent-color links for normal flow (`-->`), dashed grey for non-destructive (`-.->`)
+- Solid links for normal flow (`-->`), dashed for non-destructive (`-.->`); the
+  meaning is in the line pattern, not the color
+- Every subgraph gets the same group style
+- Every flowchart sets `config.themeVariables.edgeLabelBackground: '#FFFFFF'`
+  in its front matter: labels without Mermaid's grey box
 - `linkStyle` indices are declaration-order, 0-based — always verify after editing
 - A flowchart with a dashed `linkStyle` gets `config.elk.lineHops: false` in
   its front matter: in Mermaid 12.3.0 a dashed link that carries a line hop
@@ -166,11 +169,16 @@ graph LR
 ### Usage
 
 ```bash
-node <skill-path>/src/cli/main.ts mermaid2png <markdown_file>
+node <skill-path>/src/cli/main.ts mermaid2png <markdown_file> --background white
 
 # with AWS icons (aws:lambda, ...)
-node <skill-path>/src/cli/main.ts mermaid2png doc.md --icons-zip ~/Downloads/Icon-package_*.zip
+node <skill-path>/src/cli/main.ts mermaid2png doc.md --background white --icons-zip ~/Downloads/Icon-package_*.zip
 ```
+
+Use `--background white` for diagrams themed with this skill: their labels
+have white backgrounds, which would show as boxes on a transparent PNG in
+GitHub's dark mode (and dark text on transparent is hard to read there
+anyway).
 
 ### Options
 

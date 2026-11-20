@@ -111,7 +111,7 @@ CLI=.claude/skills/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md
 
 # 2. PNG化して mermaid ソースを <details> に折り畳む(FAアイコンが表示されないGitHub向け)
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 ```
 
 エージェント経由で使う場合、これらを手動実行することはほとんどありません — エージェントが [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) を読んで両ステップを自動処理します。詳細とトラブルシューティングは [README](../README_ja.md) を参照してください。
