@@ -21,18 +21,25 @@ Usage:
     python install.py --user              # install user-wide (all projects)
     python install.py --symlink           # symlink instead of copy (for development)
     python install.py --force             # replace an existing installation
+    python install.py --no-npm            # skip `npm ci` (Python tools only)
+
+After copying, `npm ci --omit=dev` installs the dependencies of the
+TypeScript tools (src/, Node >= 22.18) in the installed folder; with
+--symlink it runs once in this source folder.  Without npm the Python
+tools still work.
 """
 
 import argparse
 import os
 import shutil
+import subprocess
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SKILL_SRC = os.path.dirname(SCRIPT_DIR)
 SKILL_NAME = os.path.basename(SKILL_SRC)
 
-IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store")
+IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store", "node_modules")
 
 AGENTS_BY_DIR = {
     ".claude": "Claude Code / Copilot / OpenCode",
@@ -77,6 +84,23 @@ def install_into(root, symlink, force):
     return True
 
 
+def npm_ci(folder):
+    """Install the TypeScript tools' dependencies; warn (do not fail) when
+    npm is missing or fails, since the Python tools do not need them."""
+    if not os.path.isfile(os.path.join(folder, "package-lock.json")):
+        return
+    npm = shutil.which("npm")
+    if not npm:
+        print("  WARN  npm not found: TypeScript tools need Node >= 22.18 and "
+              f"`npm ci --omit=dev` in {folder}")
+        return
+    print(f"  NPM   npm ci --omit=dev  ({folder})")
+    sys.stdout.flush()
+    result = subprocess.run([npm, "ci", "--omit=dev", "--no-audit", "--no-fund"], cwd=folder)
+    if result.returncode != 0:
+        print(f"  WARN  npm ci failed in {folder}; TypeScript tools will not run")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Install this skill into agent skill discovery paths."
@@ -102,6 +126,11 @@ def main():
         action="store_true",
         help="Replace an existing installation",
     )
+    parser.add_argument(
+        "--no-npm",
+        action="store_true",
+        help="Do not run `npm ci` for the TypeScript tools",
+    )
     args = parser.parse_args()
 
     print(f"Installing {SKILL_NAME} from {SKILL_SRC}")
@@ -109,7 +138,13 @@ def main():
     for root in dest_roots(args):
         agents = AGENTS_BY_DIR[os.path.basename(os.path.dirname(root))]
         print(f"[{agents}]")
-        ok = install_into(root, args.symlink, args.force) and ok
+        installed = install_into(root, args.symlink, args.force)
+        if installed and not args.symlink and not args.no_npm:
+            npm_ci(os.path.join(root, SKILL_NAME))
+        ok = installed and ok
+
+    if args.symlink and not args.no_npm:
+        npm_ci(SKILL_SRC)
 
     if ok:
         print("\nDone. Restart your agent session to pick up the new skill.")

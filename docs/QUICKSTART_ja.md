@@ -70,7 +70,14 @@ codex exec "List the names of the agent skills available in this session."
 
 ### OpenCode
 
-OpenCode は `.opencode/skills/`・`.claude/skills/`・`.agents/skills/` を走査するため、インストーラーの配置先がどちらでも動作します。発見を確認するには:
+OpenCode は Skills をネイティブ対応しており、インストーラーの配置先2箇所をどちらも走査します。追加の作業は不要です。
+
+| スコープ | 走査されるパス |
+|---|---|
+| プロジェクト | `.opencode/{skill,skills}/**/SKILL.md`・`.claude/skills/**/SKILL.md`・`.agents/skills/**/SKILL.md` |
+| グローバル | `~/.config/opencode/{skill,skills}/**/SKILL.md`・`~/.claude/skills/**/SKILL.md`・`~/.agents/skills/**/SKILL.md` |
+
+プロジェクト側のパスはカレントディレクトリから git worktree のルートまで遡って走査されるため、サブディレクトリからでも発見されます。発見を確認するには:
 
 ```bash
 cd /path/to/your/repo
@@ -78,6 +85,20 @@ opencode run -m <provider/model> "List the names of the agent skills available i
 ```
 
 一覧に `gospelo-mermaid-plus` が表示されれば成功です。注意: デフォルトモデルのAPIキーが未設定だと `opencode run` はエラーを出さずにハングすることがあります。`-m` でモデルを明示するか、`opencode auth login` で認証情報を保存しておくとシェルの環境変数に依存せず動作します。
+
+**`duplicate skill name` の警告が出ますが正常です。** インストーラーはスキルを `.claude/skills/` と `.agents/skills/` の両方に配置し、OpenCode はその両方を走査するため、重複を警告して後に走査した方を採用します。中身は同一なので実害はありません。警告を出したくない場合はどちらか片方にだけインストールしてください。なお `.agents/skills/` は常に走査され、`.claude/skills/` は無効化できるため、1箇所に絞るなら `.agents/skills/` が確実です。
+
+**インストーラーを使わない方法もあります。** `opencode.json` から clone を直接参照させれば、コピーが古くなる問題を避けられます:
+
+```json
+{
+  "skills": {
+    "paths": ["~/src/mermaid-plus/skills/claude"]
+  }
+}
+```
+
+このディレクトリは `**/SKILL.md` で走査されるため、`gospelo-mermaid-plus` と `gospelo-md2backlog` の両方が読み込まれます。相対パスはプロジェクトディレクトリ基準で解決され、`~/` は展開されます。
 
 ## 使い方
 
