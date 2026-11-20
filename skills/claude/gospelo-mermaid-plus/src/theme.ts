@@ -104,7 +104,8 @@ any other text or explanation.
 
 1. **Do not change the diagram structure** — nodes, edges, labels, and
    subgraph groupings must stay exactly the same. Only add or update
-   styling directives (classDef, class, style, linkStyle, %%{init}).
+   styling directives (classDef, class, style, linkStyle, %%{init}) and
+   the front-matter \`config.elk.lineHops\` setting (rule 2).
 2. For **flowchart / graph** blocks:
    - Add \`classDef node\` with the palette values and apply it to ALL node IDs
      via \`class A,B,C node\`.
@@ -115,6 +116,9 @@ any other text or explanation.
      declaration-order, 0-based.
    - If the block already has \`classDef node\` / \`linkStyle\`, update values
      to match the palette rather than duplicating.
+   - If any \`linkStyle\` is dashed (\`stroke-dasharray\`), set
+     \`config.elk.lineHops: false\` in the front matter, merging into an
+     existing \`config:\` (see "Dashed links need \`elk.lineHops: false\`").
 3. For **sequenceDiagram** blocks:
    - Insert the \`%%{init: ...}%%\` directive on the line immediately before
      \`sequenceDiagram\` (or update the existing one).
