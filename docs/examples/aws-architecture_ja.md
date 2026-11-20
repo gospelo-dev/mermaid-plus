@@ -49,6 +49,8 @@ CloudFront の後ろにある Web アプリと、バックグラウンドのジ�
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---
@@ -108,6 +110,8 @@ Mermaid のコード:
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---

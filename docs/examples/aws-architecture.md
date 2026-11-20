@@ -49,6 +49,8 @@ A web app behind CloudFront, with background jobs. Styled with the default color
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---
@@ -108,6 +110,8 @@ Mermaid code:
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---
