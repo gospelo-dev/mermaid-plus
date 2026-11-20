@@ -40,7 +40,7 @@ A misspelled icon name stops the render with an `unknown-icon` error that sugges
 
 ## Flowchart with AWS icons
 
-A web app behind CloudFront, with background jobs. Links are black, as in AWS's own diagrams: solid for requests, dashed for protection and logging. The subgraphs get the repository color scheme's light plates, and the AWS icon artwork is left as is. The dashed links come with `elk.lineHops: false` ([why](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false)).
+A web app behind CloudFront, with background jobs. Styled with the default color scheme: black links (solid for requests, dashed for protection and logging), groups drawn like `architecture-beta` groups (no fill, light dashed border), and the AWS icon artwork left as is. The dashed links come with `elk.lineHops: false` ([why](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false)).
 
 ![diagram](images/aws-architecture-1.png)
 
@@ -91,13 +91,13 @@ flowchart LR
 
     classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
     class user node
-    style edge fill:#F0FDFA,stroke:#0D9488,color:#2C2C2C
-    style vpc fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
-    style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
+    style edge fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+    style vpc fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+    style jobs fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
     linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
-    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 2,10,11 stroke:#2C2C2C,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 
 </details>
@@ -150,13 +150,13 @@ flowchart LR
 
     classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
     class user node
-    style edge fill:#F0FDFA,stroke:#0D9488,color:#2C2C2C
-    style vpc fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
-    style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
+    style edge fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+    style vpc fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
+    style jobs fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
     linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
-    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 2,10,11 stroke:#2C2C2C,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 ````
 
