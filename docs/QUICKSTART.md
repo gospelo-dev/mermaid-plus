@@ -111,7 +111,7 @@ CLI=.claude/skills/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md
 
 # 2. Render to PNG and fold the mermaid source into <details> (for GitHub, where FA icons don't render)
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 ```
 
 In agent workflows you rarely run these by hand — the agent reads [SKILL.md](../skills/claude/gospelo-mermaid-plus/SKILL.md) and orchestrates both steps. See the [README](../README.md) for details and troubleshooting.

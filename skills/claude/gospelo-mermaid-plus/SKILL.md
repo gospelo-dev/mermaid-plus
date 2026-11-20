@@ -97,6 +97,8 @@ The full reference is in `references/color-scheme.md`.  Key values:
 - Solid links for normal flow (`-->`), dashed for non-destructive (`-.->`); the
   meaning is in the line pattern, not the color
 - Every subgraph gets the same group style
+- Every flowchart sets `config.themeVariables.edgeLabelBackground: '#FFFFFF'`
+  in its front matter: labels without Mermaid's grey box
 - `linkStyle` indices are declaration-order, 0-based — always verify after editing
 - A flowchart with a dashed `linkStyle` gets `config.elk.lineHops: false` in
   its front matter: in Mermaid 12.3.0 a dashed link that carries a line hop
@@ -167,11 +169,16 @@ graph LR
 ### Usage
 
 ```bash
-node <skill-path>/src/cli/main.ts mermaid2png <markdown_file>
+node <skill-path>/src/cli/main.ts mermaid2png <markdown_file> --background white
 
 # with AWS icons (aws:lambda, ...)
-node <skill-path>/src/cli/main.ts mermaid2png doc.md --icons-zip ~/Downloads/Icon-package_*.zip
+node <skill-path>/src/cli/main.ts mermaid2png doc.md --background white --icons-zip ~/Downloads/Icon-package_*.zip
 ```
+
+Use `--background white` for diagrams themed with this skill: their labels
+have white backgrounds, which would show as boxes on a transparent PNG in
+GitHub's dark mode (and dark text on transparent is hard to read there
+anyway).
 
 ### Options
 

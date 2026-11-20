@@ -67,7 +67,7 @@ graph LR
 ````
 
 ```bash
-node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md --background white
 ```
 
 | フラグ | デフォルト | 説明 |
@@ -77,7 +77,7 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 | `--icons-zip ZIP` | なし | AWS アイコンパッケージの zip(`Icon-package_*.zip`)。ブロックが `aws:` アイコンを使うときに必要 |
 | `--chrome PATH` | 自動 | chrome-headless-shell の実行ファイル |
 | `--no-sandbox` | オフ | ブラウザを `--no-sandbox` で起動する(コンテナ、root) |
-| `--background COLOR` | `transparent` | PNG の背景: CSS の色または `transparent` |
+| `--background COLOR` | `transparent` | PNG の背景: CSS の色または `transparent`。`apply-theme` でテーマを当てた図には `white` を使う(ラベルの背景が白で、GitHub のダークモードでも読める) |
 | `--max-width PX` | なし | PX(CSS ピクセル)より幅の広い図を縮小する |
 
 flowchart は既定で ELK でレイアウトされます(Mermaid 12)。dagre を使うときは、ブロックのフロントマターに `layout: dagre` を書きます。
@@ -104,7 +104,7 @@ CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. テーマ適用済みブロックを PNG 化し、ソースを <details> に折り畳む
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 
 # 3. 書き換えられた Markdown と生成画像をコミットする
 git add docs/architecture.md docs/images/

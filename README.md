@@ -67,7 +67,7 @@ graph LR
 ````
 
 ```bash
-node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
+node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md --background white
 ```
 
 | Flag | Default | Description |
@@ -77,7 +77,7 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 | `--icons-zip ZIP` | none | AWS icon package zip (`Icon-package_*.zip`); needed when blocks use `aws:` icons |
 | `--chrome PATH` | auto | chrome-headless-shell executable |
 | `--no-sandbox` | off | Start the browser with `--no-sandbox` (containers, root) |
-| `--background COLOR` | `transparent` | PNG background: a CSS color or `transparent` |
+| `--background COLOR` | `transparent` | PNG background: a CSS color or `transparent`. Use `white` for diagrams themed by `apply-theme` (their labels have white backgrounds, and they stay readable in GitHub's dark mode) |
 | `--max-width PX` | none | Shrink diagrams wider than PX CSS pixels |
 
 Flowcharts are laid out with ELK by default (Mermaid 12); set `layout: dagre` in a block's front matter to use dagre instead.
@@ -104,7 +104,7 @@ CLI=skills/claude/gospelo-mermaid-plus/src/cli/main.ts
 node $CLI apply-theme docs/architecture.md > /tmp/theme-prompt.md
 
 # 2. Render the themed blocks to PNG and fold the source into <details>
-node $CLI mermaid2png docs/architecture.md
+node $CLI mermaid2png docs/architecture.md --background white
 
 # 3. Commit the rewritten Markdown and generated images
 git add docs/architecture.md docs/images/

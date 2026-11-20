@@ -14,6 +14,7 @@ labels carry the color.
 | Accent link (solid) | `#333333` (2 px) | Black — normal data/control flow |
 | Non-destructive link (dashed) | `#2C2C2C` (1.5 px, `4 4`) | Black dashed — read-only / monitoring / side-effect-free paths |
 | Group (subgraph) | fill `none` / stroke `#C7C7F1` (2 px, `8 8`) | Light lavender dashed border, as `architecture-beta` groups — every subgraph alike |
+| Label background | `#FFFFFF` | Edge labels and icon-node labels: white instead of Mermaid's grey `#CCCCCC` |
 
 ## flowchart classDef / style / linkStyle
 
@@ -40,6 +41,27 @@ linkStyle 3     stroke:#2C2C2C,stroke-width:1.5px,stroke-dasharray:4 4
 
 The meaning is in the line pattern, not the color, so it survives
 grayscale printing and color-blind viewing.
+
+### White label backgrounds (front matter)
+
+Mermaid paints a grey box (`#CCCCCC`) behind edge labels and the labels
+of icon nodes (`@{ icon: ... }`). Every flowchart sets it to white in its
+front matter, so labels read as plain text (as in `architecture-beta`)
+and a link passing behind an edge label breaks cleanly around it:
+
+```
+---
+config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
+---
+flowchart LR
+```
+
+Merge it into an existing `config:` (together with `elk.lineHops` below)
+rather than adding a second front matter block. Render such diagrams with
+`mermaid2png --background white`: on a transparent PNG the white label
+boxes would show in dark mode.
 
 ### Dashed links need `elk.lineHops: false`
 
@@ -129,6 +151,8 @@ Paste as-is before `sequenceDiagram`:
 ```mermaid
 ---
 config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
   elk:
     lineHops: false
 ---
