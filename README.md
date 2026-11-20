@@ -110,6 +110,8 @@ node $CLI mermaid2png docs/architecture.md --background white
 git add docs/architecture.md docs/images/
 ```
 
+**AWS architecture diagrams** — flowcharts and `architecture-beta` with the official AWS Architecture Icons (`--icons-zip`): see the [AWS sample](https://github.com/gospelo-dev/mermaid-plus/blob/main/docs/examples/aws-architecture.md) for rendered diagrams, their Mermaid code, and how to get the icon package.
+
 ## Installing as an Agent Skill
 
 This repository ships an [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) at `skills/claude/gospelo-mermaid-plus/`. The skill uses only the portable core of the open [Agent Skills standard](https://github.com/agentskills/agentskills), so it works with **Claude Code, GitHub Copilot, OpenAI Codex, and OpenCode**.
