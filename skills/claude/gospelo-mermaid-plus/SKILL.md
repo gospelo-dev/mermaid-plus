@@ -188,12 +188,16 @@ blocks are still converted.
 
 ### Idempotency
 
-A block is skipped only when it already has the `![diagram]` + `<details>`
-fold above it **and** the referenced PNG actually exists on disk. If the
+A block is skipped only when it sits in the exact `![diagram]` + `<details>`
+fold this tool writes **and** the referenced PNG exists on disk. If the
 PNG is missing (e.g. it was deleted, or a wrapper was left behind without a
-render), the block is treated as unconverted and re-rendered. Running twice
-on the same file is safe; when every block is converted, no browser is
-started.
+render), the PNG is rendered again to the path the fold references and the
+Markdown is left as it is — the block is not wrapped a second time. Running
+twice on the same file is safe; when every block is converted, no browser
+is started.
+
+To re-render a converted diagram (after editing its source in the fold, or
+to pick up a newer Mermaid), delete its PNG and run `mermaid2png` again.
 
 ### Icons
 
@@ -256,5 +260,5 @@ All other FA6 Free Solid icons work with `fa:fa-*`.
   pass `--icons-zip`, and check the icon name (the error suggests close
   matches).
 - **Icons blank in PNG** — Check the blacklist above; stick to FA6 Free Solid.
-- **Block skipped ("already converted")** — Remove the `![diagram]` + `<details>`
-  wrapper above the block and re-run.
+- **Block skipped ("already converted")** — Delete the block's PNG and re-run;
+  it is rendered again in place.

@@ -10,5 +10,5 @@ export {
 export type { Lab } from './color.ts'
 export { applyAccentToScheme, buildThemePrompt, DEFAULT_SCHEME, readScheme, usesIcons } from './theme.ts'
 export type { ThemePromptOptions } from './theme.ts'
-export { alreadyConverted, buildReplacement, pngName, processMarkdown } from './mermaid2png.ts'
+export { alreadyConverted, buildReplacement, pngName, processMarkdown, wrapperImage } from './mermaid2png.ts'
 export type { BlockRenderer, Mermaid2PngOptions, Mermaid2PngResult } from './mermaid2png.ts'
