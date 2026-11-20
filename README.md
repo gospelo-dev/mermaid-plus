@@ -126,6 +126,8 @@ python $INSTALL --user --symlink
 python $INSTALL --project /path/to/repo --force
 ```
 
+There is no OpenCode-specific copy of the skill and none is needed: OpenCode scans `.claude/skills/` and `.agents/skills/` natively, so the installer already covers it. OpenCode can also read the skills directly out of a clone through `skills.paths` in `opencode.json`, skipping the installer entirely — see the [Quickstart](https://github.com/gospelo-dev/mermaid-plus/blob/main/docs/QUICKSTART.md#opencode) for both the full list of scanned paths and that setup.
+
 Agents discover the skill via [SKILL.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/SKILL.md) and trigger it when you say things like *"render mermaid to png"*, *"apply the color scheme"*, or *"make the FA icons show up on GitHub"*. See SKILL.md for the full workflow, the FA6 icon blacklist, and troubleshooting.
 
 ### Distributing as a ZIP

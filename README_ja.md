@@ -126,6 +126,8 @@ python $INSTALL --user --symlink
 python $INSTALL --project /path/to/repo --force
 ```
 
+OpenCode 専用のスキルコピーは用意していませんし、必要もありません。OpenCode は `.claude/skills/` と `.agents/skills/` をネイティブに走査するため、上記のインストーラーだけで対応済みです。さらに `opencode.json` の `skills.paths` で clone を直接参照させれば、インストーラー自体を省略できます。走査パスの一覧とその設定方法は[クイックスタート](https://github.com/gospelo-dev/mermaid-plus/blob/main/docs/QUICKSTART_ja.md#opencode)を参照してください。
+
 エージェントは [SKILL.md](https://github.com/gospelo-dev/mermaid-plus/blob/main/skills/claude/gospelo-mermaid-plus/SKILL.md) からスキルを発見し、「mermaid を PNG にして」「カラースキームを適用して」「GitHub で FA アイコンを表示したい」のような依頼で発火します。ワークフローの全体像・FA6 アイコンのブラックリスト・トラブルシューティングは SKILL.md を参照してください。
 
 ### ZIP での配布

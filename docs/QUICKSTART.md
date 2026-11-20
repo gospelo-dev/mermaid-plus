@@ -70,7 +70,14 @@ codex exec "List the names of the agent skills available in this session."
 
 ### OpenCode
 
-OpenCode scans `.opencode/skills/`, `.claude/skills/`, and `.agents/skills/`, so either installer location works. To confirm discovery:
+OpenCode has first-party skill support and scans both of the installer's locations, so nothing extra is needed:
+
+| Scope | Paths scanned |
+|---|---|
+| Project | `.opencode/{skill,skills}/**/SKILL.md`, `.claude/skills/**/SKILL.md`, `.agents/skills/**/SKILL.md` |
+| Global | `~/.config/opencode/{skill,skills}/**/SKILL.md`, `~/.claude/skills/**/SKILL.md`, `~/.agents/skills/**/SKILL.md` |
+
+Project paths are walked up from the current directory to the git worktree root, so the skill is found from any subdirectory. To confirm discovery:
 
 ```bash
 cd /path/to/your/repo
@@ -78,6 +85,20 @@ opencode run -m <provider/model> "List the names of the agent skills available i
 ```
 
 `gospelo-mermaid-plus` should appear in the list. Note: if the default model's API key is not configured, `opencode run` can hang without an error — pass `-m` explicitly, or store credentials once with `opencode auth login` so it works regardless of shell environment variables.
+
+**A `duplicate skill name` warning is expected.** The installer writes the skill to both `.claude/skills/` and `.agents/skills/`, and OpenCode scans both, so it logs the duplicate and keeps whichever it scanned last. Both copies are identical, so this is harmless. Install into only one of the two directories if you would rather not see it. Note that `.agents/skills/` is always scanned, while `.claude/skills/` can be turned off — prefer `.agents/skills/` if you keep only one.
+
+**You can skip the installer entirely.** OpenCode can read the skills straight out of a clone via `opencode.json`, which avoids copies going stale:
+
+```json
+{
+  "skills": {
+    "paths": ["~/src/mermaid-plus/skills/claude"]
+  }
+}
+```
+
+That directory is scanned as `**/SKILL.md`, so both `gospelo-mermaid-plus` and `gospelo-md2backlog` are picked up. Relative paths resolve against the project directory, and `~/` is expanded.
 
 ## Use
 
