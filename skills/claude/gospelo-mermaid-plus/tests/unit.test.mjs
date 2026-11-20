@@ -5,7 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { mermaidBlocks } from '@gospelo/mermaid-arch'
 import {
-  applyAccentToScheme, buildThemePrompt, DEFAULT_SCHEME, deriveGroupBorder, deriveLightTint, hexToLab,
+  applyAccentToScheme, buildThemePrompt, DEFAULT_SCHEME, deriveGroupBorder, deriveLightTint, deriveNodeColors, hexToLab,
   normalizeAccent, processMarkdown, readScheme, usesIcons,
 } from '../src/index.ts'
 
@@ -33,14 +33,29 @@ test('deriveGroupBorder keeps the lightness of the default border', () => {
   assert.ok(Math.hypot(a, b) < 0.5, 'grey stays neutral')
 })
 
-test('--accent recolors solid links and the group border, not dashed links or text', () => {
+test('deriveNodeColors keeps the lightness of the default periwinkle colors', () => {
+  for (const accent of ['#0D9488', '#E11D48', '#2563EB', '#808080']) {
+    const { fill, border, text } = deriveNodeColors(accent)
+    assert.ok(Math.abs(hexToLab(fill)[0] - 95.54) < 0.6, `${accent} fill ${fill}`)
+    assert.ok(Math.abs(hexToLab(border)[0] - 74.62) < 0.6, `${accent} border ${border}`)
+    assert.ok(Math.abs(hexToLab(text)[0] - 13.03) < 0.6, `${accent} text ${text}`)
+  }
+  const [, a, b] = hexToLab(deriveNodeColors('#808080').border)
+  assert.ok(Math.hypot(a, b) < 0.5, 'grey stays neutral')
+})
+
+test('--accent recolors solid links, the group border and periwinkle nodes, not dashed links, text or icon nodes', () => {
   const scheme = applyAccentToScheme(readScheme(DEFAULT_SCHEME), '#E11D48')
   const border = deriveGroupBorder('#E11D48')
+  const node = deriveNodeColors('#E11D48')
   assert.match(scheme, /linkStyle 0,1,2 stroke:#E11D48,stroke-width:2px/)
   assert.match(scheme, /linkStyle 3 {5}stroke:#2C2C2C,stroke-width:1\.5px,stroke-dasharray:4 4/)
   assert.ok(scheme.includes(`style Main fill:none,stroke:${border},stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C`))
-  assert.doesNotMatch(scheme, /#333333|#C7C7F1/i)
+  assert.ok(scheme.includes(`classDef node fill:${node.fill},stroke:${node.border},stroke-width:1.5px,color:${node.text}`))
+  assert.ok(scheme.includes('classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C'), 'icon-diagram nodes stay white')
+  assert.doesNotMatch(scheme, /#333333|#C7C7F1|#EEF2FF|#A5B4FC|#1E1B4B/i)
   assert.match(scheme, /Accent color — normal data\/control flow/)
+  assert.match(scheme, /Light accent tint — diagrams without icons/)
 })
 
 const ICON_DOC = '```mermaid\nflowchart LR\n  fn@{ icon: "aws:lambda", label: "Fn" } --> db@{ icon: "aws:dynamodb" }\n```\n'

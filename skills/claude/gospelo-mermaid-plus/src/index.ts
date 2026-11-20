@@ -4,7 +4,7 @@
 //   import { processMarkdown } from './src/index.ts'   // Node >= 22.18 runs .ts as is
 //   await processMarkdown('docs/arch.md', { iconsZip: 'Icon-package_*.zip' })
 export {
-  deriveGroupBorder, deriveLightTint, hexToLab, labToHex, lowContrastWarning, normalizeAccent,
+  deriveGroupBorder, deriveLightTint, deriveNodeColors, hexToLab, labToHex, lowContrastWarning, normalizeAccent,
   perceptualLightness, perceptualSaturation,
 } from './color.ts'
 export type { Lab } from './color.ts'

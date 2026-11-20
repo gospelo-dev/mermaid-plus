@@ -96,6 +96,30 @@ export function deriveGroupBorder(accentHex: string): string {
   return deriveTint(accentHex, GROUP_BORDER_L, GROUP_BORDER_CHROMA)
 }
 
+// L* and chroma of the default node colors of diagrams without icons:
+// fill #EEF2FF, border #A5B4FC, text #1E1B4B (periwinkle).
+const NODE_FILL: Lc = [95.54, 6.78]
+const NODE_BORDER: Lc = [74.62, 39.02]
+const NODE_TEXT: Lc = [13.03, 34.16]
+type Lc = [L: number, chroma: number]
+
+export interface NodeColors {
+  fill: string
+  border: string
+  text: string
+}
+
+/** Node fill, border and text for an accent: the accent's hue at the
+ * lightness and chroma of each default periwinkle color (chroma reduced
+ * until it fits sRGB). Grey input gives neutral greys. */
+export function deriveNodeColors(accentHex: string): NodeColors {
+  return {
+    fill: deriveTint(accentHex, ...NODE_FILL),
+    border: deriveTint(accentHex, ...NODE_BORDER),
+    text: deriveTint(accentHex, ...NODE_TEXT),
+  }
+}
+
 /** The accent's hue at lightness `targetL` and chroma `targetChroma`,
  * the chroma reduced by binary search until the color fits sRGB. */
 function deriveTint(accentHex: string, targetL: number, targetChroma: number): string {
