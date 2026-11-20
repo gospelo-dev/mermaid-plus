@@ -63,7 +63,7 @@ Paste as-is before `sequenceDiagram`:
   GitHub renders neither Font Awesome nor Iconify icons inside Mermaid
   (community discussions #11940 / #146647, unresolved as of 2026-07);
   `fa:fa-*` degrades to its literal label text there — unless the diagram
-  is pre-rendered to PNG with this skill's `mermaid2png.py`
+  is pre-rendered to PNG with this skill's `mermaid2png` command
 - Never use the Mermaid v11 Iconify icon shape (`@{shape: icon, icon: "logos:aws"}`)
   or architecture-diagram icon packs — on GitHub they become a blue "?" box
   with no readable fallback
@@ -146,7 +146,7 @@ and out-of-range `linkStyle` indices (but NOT wrong icon names, see above):
 # all blocks in a file, via the repo helper
 python3 scratch/render_mermaid_check.py <file.md> <workdir>
 # or render to PNG with this skill
-python3 <skill-path>/scripts/mermaid2png.py <file.md>
+node <skill-path>/src/cli/main.ts mermaid2png <file.md>
 ```
 
 ## Override policy

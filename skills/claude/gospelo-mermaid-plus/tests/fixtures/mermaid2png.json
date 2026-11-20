@@ -1,0 +1,31 @@
+{
+  "full": {
+    "md": "# Doc\n\nIntro with emoji 🚀 before the blocks.\n\n![diagram](images/doc-1.png)\n\n<details><summary>Mermaid source</summary>\n\n```mermaid\nflowchart LR\n  subgraph S[Service]\n    A[\"fa:fa-user User\"] --> B[API]\n  end\n  B -.-> C[(DB)]\n```\n\n</details>\n\nText between.\n\n![diagram](images/doc-2.png)\n\n<details><summary>Mermaid source</summary>\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n\n</details>\n\n```js\nconsole.log('not mermaid')\n```\n",
+    "images": [
+      "doc-1.png",
+      "doc-2.png"
+    ],
+    "log": "Found 2 mermaid block(s) in doc.md\n  Block 2: rendering → images/doc-2.png\n  Block 1: rendering → images/doc-1.png\n\nDone: 2/2 block(s) converted.\n"
+  },
+  "single": {
+    "input": "```mermaid\ngraph TD\n  A --> B\n```\n",
+    "md": "![diagram](images/doc.png)\n\n<details><summary>Mermaid source</summary>\n\n```mermaid\ngraph TD\n  A --> B\n```\n\n</details>\n",
+    "images": [
+      "doc.png"
+    ],
+    "log": "Found 1 mermaid block(s) in doc.md\n  Block 1: rendering → images/doc.png\n\nDone: 1/1 block(s) converted.\n"
+  },
+  "rerun": {
+    "md": "# Doc\n\nIntro with emoji 🚀 before the blocks.\n\n![diagram](images/doc-1.png)\n\n<details><summary>Mermaid source</summary>\n\n```mermaid\nflowchart LR\n  subgraph S[Service]\n    A[\"fa:fa-user User\"] --> B[API]\n  end\n  B -.-> C[(DB)]\n```\n\n</details>\n\nText between.\n\n![diagram](images/doc-2.png)\n\n<details><summary>Mermaid source</summary>\n\n![diagram](images/doc-2.png)\n\n<details><summary>Mermaid source</summary>\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n\n</details>\n\n</details>\n\n```js\nconsole.log('not mermaid')\n```\n",
+    "images": [
+      "doc-1.png",
+      "doc-2.png"
+    ],
+    "log": "Found 2 mermaid block(s) in doc.md\n  Block 2: rendering → images/doc-2.png\n  Block 1: already converted, skipping\n\nDone: 1/2 block(s) converted.\n"
+  },
+  "dryRun": {
+    "md": "# Doc\n\nIntro with emoji 🚀 before the blocks.\n\n```mermaid\nflowchart LR\n  subgraph S[Service]\n    A[\"fa:fa-user User\"] --> B[API]\n  end\n  B -.-> C[(DB)]\n```\n\nText between.\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n\n```js\nconsole.log('not mermaid')\n```\n",
+    "images": null,
+    "log": "Found 2 mermaid block(s) in doc.md\n  Block 1: would render → images/doc-1.png\n  Block 2: would render → images/doc-2.png\n\nDry run: 2/2 block(s) would be converted. No files written.\n"
+  }
+}
