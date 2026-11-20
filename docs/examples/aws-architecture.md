@@ -40,7 +40,7 @@ A misspelled icon name stops the render with an `unknown-icon` error that sugges
 
 ## Flowchart with AWS icons
 
-A web app behind CloudFront, with background jobs. Styled with the repository color scheme: solid accent links for requests, dashed grey links for protection and logging, a light plate behind the subgraphs, and the AWS icon artwork left as is. The dashed links come with `elk.lineHops: false` ([why](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false)).
+A web app behind CloudFront, with background jobs. Links are black, as in AWS's own diagrams: solid for requests, dashed for protection and logging. The subgraphs get the repository color scheme's light plates, and the AWS icon artwork is left as is. The dashed links come with `elk.lineHops: false` ([why](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false)).
 
 ![diagram](images/aws-architecture-1.png)
 
@@ -96,8 +96,8 @@ flowchart LR
     style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
-    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#0D9488,stroke-width:2px
-    linkStyle 2,10,11 stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
+    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 
 </details>
@@ -155,8 +155,8 @@ flowchart LR
     style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
-    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#0D9488,stroke-width:2px
-    linkStyle 2,10,11 stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
+    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 ````
 

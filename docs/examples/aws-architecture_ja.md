@@ -40,7 +40,7 @@ node $CLI mermaid2png docs/architecture.md --icons-zip $ZIP --background white
 
 ## AWS アイコンを使った flowchart
 
-CloudFront の後ろにある Web アプリと、バックグラウンドのジョブです。リポジトリのカラースキームで色を付けています: リクエストはアクセント色の実線、保護とログは灰色の点線、subgraph の後ろには淡い背景、AWS のアイコンの絵はそのまま。点線があるので `elk.lineHops: false` を付けています([理由](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false))。
+CloudFront の後ろにある Web アプリと、バックグラウンドのジョブです。線は AWS の構成図と同じく黒にしています: リクエストは実線、保護とログは点線です。subgraph の背景はリポジトリのカラースキームの淡い色で、AWS のアイコンの絵はそのままです。点線があるので `elk.lineHops: false` を付けています([理由](../skills/claude/gospelo-mermaid-plus/references/color-scheme.md#dashed-links-need-elklinehops-false))。
 
 ![diagram](images/aws-architecture_ja-1.png)
 
@@ -96,8 +96,8 @@ flowchart LR
     style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
-    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#0D9488,stroke-width:2px
-    linkStyle 2,10,11 stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
+    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 
 </details>
@@ -155,8 +155,8 @@ flowchart LR
     style jobs fill:#F8FAFC,stroke:#94A3B8,color:#2C2C2C
 
     %% solid = requests and jobs; dashed = protection and logging
-    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#0D9488,stroke-width:2px
-    linkStyle 2,10,11 stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:4 4
+    linkStyle 0,1,3,4,5,6,7,8,9 stroke:#333333,stroke-width:2px
+    linkStyle 2,10,11 stroke:#333333,stroke-width:1.5px,stroke-dasharray:4 4
 ```
 ````
 
