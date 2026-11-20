@@ -96,15 +96,56 @@ test('mermaid2png single block uses <base>.png', async () => {
   assert.deepEqual(want.images, ['doc.png'])
 })
 
-test('second run skips converted blocks', async () => {
+// The Python version wrapped a converted block a second time, inside its
+// own <details>, when the block's PNG was missing. Not recorded: fixed here.
+test('second run skips converted blocks and re-renders a missing PNG in place', async () => {
+  let dir
   const ts = await run(M2P.full.md, {
     prepare: (d) => {
+      dir = d
       fs.mkdirSync(path.join(d, 'images'))
       fs.writeFileSync(path.join(d, 'images', 'doc-1.png'), 'x') // doc-2.png missing: re-render block 2
     },
   })
-  assert.equal(ts.md, M2P.rerun.md)
-  assert.equal(ts.log, M2P.rerun.log)
+  assert.equal(ts.md, M2P.full.md) // no second fold
+  assert.deepEqual(ts.images, ['doc-1.png', 'doc-2.png'])
+  assert.equal(fs.readFileSync(path.join(dir, 'images', 'doc-1.png'), 'utf8'), 'x') // skipped
+  assert.equal(ts.log, [
+    'Found 2 mermaid block(s) in doc.md',
+    '  Block 2: image missing, re-rendering → images/doc-2.png',
+    '  Block 1: already converted, skipping',
+    '',
+    'Done: 1/2 block(s) converted.',
+    '',
+  ].join('\n'))
+})
+
+test('a missing PNG is written to the path the fold references', async () => {
+  const md = M2P.single.md.replace('images/doc.png', 'img/custom name.png')
+  let dir
+  const ts = await run(md, { prepare: (d) => { dir = d } })
+  assert.equal(ts.md, md)
+  assert.ok(fs.statSync(path.join(dir, 'img', 'custom name.png')).isFile())
+})
+
+test('a plain block right after a converted one is rendered', async () => {
+  const md = M2P.single.md + '\n```mermaid\ngraph TD\n  C --> D\n```\n'
+  const ts = await run(md, {
+    prepare: (d) => {
+      fs.mkdirSync(path.join(d, 'images'))
+      fs.writeFileSync(path.join(d, 'images', 'doc.png'), 'x')
+    },
+  })
+  assert.match(ts.log, /Block 2: rendering → images\/doc-2\.png/)
+  assert.match(ts.log, /Block 1: already converted, skipping/)
+  assert.equal((ts.md.match(/<details>/g) || []).length, 2)
+  assert.match(ts.md, /!\[diagram\]\(images\/doc-2\.png\)\n\n<details><summary>Mermaid source<\/summary>\n\n```mermaid\ngraph TD\n  C --> D\n```/)
+})
+
+test('dry run reports a missing PNG as a re-render', async () => {
+  const ts = await run(M2P.full.md, { dryRun: true })
+  assert.match(ts.log, /Block 1: would re-render \(image missing\) → images\/doc-1\.png/)
+  assert.equal(ts.md, M2P.full.md)
 })
 
 test('dry run writes nothing and logs as recorded', async () => {

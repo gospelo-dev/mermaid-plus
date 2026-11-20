@@ -1,6 +1,7 @@
 // Render the ```mermaid blocks of a Markdown file to PNG with mermaid-arch,
 // and replace each block with the image plus its source folded in
-// <details>. Ported from mermaid2png.py; the rewritten Markdown is the same.
+// <details>. Ported from mermaid2png.py; the rewritten Markdown is the same,
+// except that a fold whose PNG is missing is no longer wrapped a second time.
 
 import fs from 'node:fs'
 import path from 'node:path'
@@ -63,17 +64,30 @@ export function buildReplacement(imageRelPath: string, mermaidCode: string): str
   )
 }
 
+/** The text buildReplacement puts right before the fence, up to the fence.
+ * Blank lines and line endings may have been reformatted by an editor. */
+const WRAPPER_BEFORE_FENCE = /!\[diagram\]\(([^)\r\n]+)\)[ \t]*\r?\n\s*<details>\s*<summary>Mermaid source<\/summary>\s*$/
+
+/** The image path of the fold the block at `blockStart` sits in, or null
+ * when the block is not wrapped (only our exact fold counts, so a plain
+ * block placed just after a converted one is not mistaken for converted). */
+export function wrapperImage(mdText: string, blockStart: number): string | null {
+  const prefix = mdText.slice(Math.max(0, blockStart - 1000), blockStart)
+  return WRAPPER_BEFORE_FENCE.exec(prefix)?.[1]?.trim() ?? null
+}
+
 /** Whether the block at `blockStart` already sits in the <details> fold
- * we produce, below an image that exists. A fold whose PNG is missing (a
- * manual edit, an old dry run) counts as not converted, so it is rendered. */
+ * we produce, below an image that exists. */
 export function alreadyConverted(mdText: string, blockStart: number, mdDir: string): boolean {
-  const prefix = mdText.slice(Math.max(0, blockStart - 300), blockStart)
-  if (!prefix.includes('<details>')) return false
-  const refs = [...prefix.matchAll(/!\[diagram\]\(([^)]+)\)/g)]
-  const last = refs.at(-1)
-  if (!last) return false
-  const ref = last[1]!.trim()
-  const file = path.isAbsolute(ref) ? ref : path.join(mdDir, ref)
+  const ref = wrapperImage(mdText, blockStart)
+  return ref !== null && isFile(imagePath(ref, mdDir))
+}
+
+function imagePath(ref: string, mdDir: string): string {
+  return path.isAbsolute(ref) ? ref : path.join(mdDir, ref)
+}
+
+function isFile(file: string): boolean {
   try {
     return fs.statSync(file).isFile()
   } catch {
@@ -114,14 +128,20 @@ export async function processMarkdown(mdFile: string, opts: Mermaid2PngOptions =
 
   const base = path.basename(mdPath, path.extname(mdPath))
   const relPath = (i: number) => `images/${pngName(base, i, blocks.length)}`
-  const done = blocks.map((b) => alreadyConverted(mdText, b.offset.start, mdDir))
+  // A wrapped block whose PNG is missing gets the PNG back at the path its
+  // fold already references; the Markdown is left as it is (wrapping it
+  // again would nest a second fold inside the first).
+  const wrapped = blocks.map((b) => wrapperImage(mdText, b.offset.start))
+  const done = wrapped.map((ref) => ref !== null && isFile(imagePath(ref, mdDir)))
   const todo = blocks.filter((_, i) => !done[i]).length
+  const plan = (i: number) =>
+    wrapped[i] !== null ? `image missing, re-rendering → ${wrapped[i]}` : `rendering → ${relPath(i)}`
 
   // A dry run writes nothing: no images/, no PNG and no Markdown rewrite
   // (a rewritten file without its PNGs would look converted on the real run).
   if (opts.dryRun) {
     blocks.forEach((_, i) =>
-      log(done[i] ? `  Block ${i + 1}: already converted, would skip` : `  Block ${i + 1}: would render → ${relPath(i)}`),
+      log(done[i] ? `  Block ${i + 1}: already converted, would skip` : `  Block ${i + 1}: would ${wrapped[i] !== null ? `re-render (image missing) → ${wrapped[i]}` : `render → ${relPath(i)}`}`),
     )
     log(`\nDry run: ${todo}/${blocks.length} block(s) would be converted. No files written.`)
     return { blocks: blocks.length, converted: todo, failed: 0 }
@@ -148,6 +168,7 @@ export async function processMarkdown(mdFile: string, opts: Mermaid2PngOptions =
 
   let converted = 0
   let failed = 0
+  let rewritten = false
   try {
     // Last block first, so the offsets of the earlier ones stay valid.
     for (let index = blocks.length - 1; index >= 0; index--) {
@@ -156,16 +177,24 @@ export async function processMarkdown(mdFile: string, opts: Mermaid2PngOptions =
         log(`  Block ${index + 1}: already converted, skipping`)
         continue
       }
-      const rel = relPath(index)
-      log(`  Block ${index + 1}: rendering → ${rel}`)
+      log(`  Block ${index + 1}: ${plan(index)}`)
       const png = await renderBlock(renderer, block, renderOptions, warn)
       if (!png) {
         warn(`  Block ${index + 1}: FAILED — keeping original`)
         failed++
         continue
       }
-      fs.writeFileSync(path.join(mdDir, rel), png)
-      mdText = mdText.slice(0, block.offset.start) + buildReplacement(rel, block.text) + mdText.slice(block.offset.end)
+      const ref = wrapped[index] ?? null
+      if (ref !== null) {
+        const file = imagePath(ref, mdDir)
+        fs.mkdirSync(path.dirname(file), { recursive: true })
+        fs.writeFileSync(file, png)
+      } else {
+        const rel = relPath(index)
+        fs.writeFileSync(path.join(mdDir, rel), png)
+        mdText = mdText.slice(0, block.offset.start) + buildReplacement(rel, block.text) + mdText.slice(block.offset.end)
+        rewritten = true
+      }
       converted++
     }
   } finally {
@@ -173,7 +202,7 @@ export async function processMarkdown(mdFile: string, opts: Mermaid2PngOptions =
   }
 
   if (converted > 0) {
-    fs.writeFileSync(mdPath, mdText, 'utf8')
+    if (rewritten) fs.writeFileSync(mdPath, mdText, 'utf8')
     log(`\nDone: ${converted}/${blocks.length} block(s) converted.`)
   } else {
     log('\nNo blocks were converted.')

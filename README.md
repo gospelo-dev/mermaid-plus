@@ -84,7 +84,7 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts mermaid2png doc.md
 
 Flowcharts are laid out with ELK by default (Mermaid 12); set `layout: dagre` in a block's front matter to use dagre instead.
 
-The command is **idempotent** — blocks that were already converted are skipped, so running it twice on the same file is safe. Blocks that fail to render are left untouched.
+The command is **idempotent** — blocks that were already converted are skipped, so running it twice on the same file is safe. Blocks that fail to render are left untouched. To re-render a converted diagram (for example after editing its source inside `<details>`), delete its PNG and run the command again: the PNG is rendered back to the same path and the Markdown is not wrapped a second time.
 
 ## Prerequisites
 
