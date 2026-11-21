@@ -75,7 +75,7 @@ In practice, as an Agent Skill, the workflow is:
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to color-scheme reference file |
-| `--accent '#RRGGBB'` | (none — monotone) | Custom accent color. Solid links take the color, and the dashed group border is derived from it in CIELAB (its hue at the lightness and chroma of the default `#C7C7F1`). Dashed links and text stay black. Warns on stderr if the color has low contrast on white. |
+| `--accent '#RRGGBB'` | (none — default palette) | Custom accent color. Solid links take the color; the dashed group border and the periwinkle node colors are derived from it in CIELAB (its hue at the lightness and chroma of each default color). Dashed links, text and the white nodes of icon diagrams stay as they are. Warns on stderr if the color has low contrast on white. |
 | `--icons-zip ZIP` | (none) | AWS icon package zip. When blocks use `aws:` icons, the prompt lists each icon's AWS category color. |
 
 ### Color scheme summary
@@ -86,7 +86,8 @@ The full reference is in `references/color-scheme.md`.  Key values:
 
 | Role | Value |
 |---|---|
-| Node fill / stroke / text | `#FFFFFF` / `#666666` (1.5 px) / `#2C2C2C` |
+| Node fill / stroke / text | `#EEF2FF` / `#A5B4FC` (1.5 px) / `#1E1B4B` — light periwinkle (derived from `--accent`) |
+| Node in icon diagrams | `#FFFFFF` / `#666666` (1.5 px) / `#2C2C2C` — white, when the flowchart has `aws:` icon nodes |
 | Solid link | `#333333` (2 px) — normal data/control flow (override with `--accent`) |
 | Dashed link | `#2C2C2C` (1.5 px, `4 4`) — read-only / monitoring |
 | Group (every subgraph) | fill `none` / stroke `#C7C7F1` (2 px, dashed `8 8`), as `architecture-beta` groups (derived from `--accent`) |

@@ -35,12 +35,12 @@ node skills/claude/gospelo-mermaid-plus/src/cli/main.ts apply-theme doc.md > /tm
 | Flag | Default | Description |
 |---|---|---|
 | `--scheme PATH` | `references/color-scheme.md` | Path to the color-scheme reference file |
-| `--accent '#RRGGBB'` | none (monotone) | Custom accent color for solid links; the group border is derived from it using CIELAB color science |
+| `--accent '#RRGGBB'` | none (default palette) | Custom accent color for solid links; the group border and node colors are derived from it using CIELAB color science |
 | `--icons-zip ZIP` | none | AWS icon package zip. When blocks use `aws:` icons, the prompt lists each icon's AWS category color |
 
-The default scheme is near-monotone: black links (solid = normal flow, dashed = read-only / monitoring — the meaning is in the line pattern, not the color), white nodes, and every subgraph drawn like an `architecture-beta` group — no fill and a light lavender dashed border (`#C7C7F1`). Icons and labels carry the color.
+The default scheme: black links (solid = normal flow, dashed = read-only / monitoring — the meaning is in the line pattern, not the color), light periwinkle nodes (`#EEF2FF` / border `#A5B4FC`), and every subgraph drawn like an `architecture-beta` group — no fill and a light lavender dashed border (`#C7C7F1`). In diagrams with AWS icons, nodes stay white so the icon artwork carries the color.
 
-With `--accent`, solid links take the color you pass, and the group border is derived from it in CIELAB (a perceptually uniform space): the accent's hue at the lightness and chroma of the default `#C7C7F1`, with the chroma reduced by binary search if the result falls outside sRGB. So every accent gives a border as light as the default. Dashed links and text stay black. If the color has low contrast on white, the command warns on stderr and continues.
+With `--accent`, solid links take the color you pass, and the group border and the periwinkle node colors are derived from it in CIELAB (a perceptually uniform space): the accent's hue at the lightness and chroma of each default color, with the chroma reduced by binary search if the result falls outside sRGB. So every accent gives colors as light as the defaults. Dashed links, text and the white nodes of icon diagrams stay as they are. If the color has low contrast on white, the command warns on stderr and continues.
 
 ```bash
 # Generate a theming prompt using your brand color

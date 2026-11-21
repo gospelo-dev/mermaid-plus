@@ -2,21 +2,30 @@
 
 ## Palette
 
-Near-monotone: black links, white nodes, and groups drawn like
-`architecture-beta` groups (no fill, light dashed border), so icons and
-labels carry the color.
+Black links and groups drawn like `architecture-beta` groups (no fill,
+light dashed border). Nodes are light periwinkle, except in diagrams with
+icons, where they stay white so the icon artwork carries the color.
 
 | Role | Value | Notes |
 |---|---|---|
-| Node fill | `#FFFFFF` | White background — works in both light/dark mode |
-| Node stroke | `#666666` (1.5 px) | Mid-grey |
-| Text | `#2C2C2C` | Near-black |
+| Node fill / stroke / text | `#EEF2FF` / `#A5B4FC` (1.5 px) / `#1E1B4B` | Light periwinkle — diagrams without icons |
+| Node fill / stroke / text (icon diagrams) | `#FFFFFF` / `#666666` (1.5 px) / `#2C2C2C` | White — flowcharts with icon nodes (`@{ icon: "aws:..." }`) |
+| Text | `#2C2C2C` | Near-black — group titles, labels |
 | Accent link (solid) | `#333333` (2 px) | Black — normal data/control flow |
 | Non-destructive link (dashed) | `#2C2C2C` (1.5 px, `4 4`) | Black dashed — read-only / monitoring / side-effect-free paths |
 | Group (subgraph) | fill `none` / stroke `#C7C7F1` (2 px, `8 8`) | Light lavender dashed border, as `architecture-beta` groups — every subgraph alike |
 | Label background | `#FFFFFF` | Edge labels and icon-node labels: white instead of Mermaid's grey `#CCCCCC` |
 
 ## flowchart classDef / style / linkStyle
+
+### Node colors
+
+```
+classDef node fill:#EEF2FF,stroke:#A5B4FC,stroke-width:1.5px,color:#1E1B4B
+```
+
+When the flowchart has icon nodes (`@{ icon: "aws:..." }`), use white
+nodes instead, so the icon artwork is the only color:
 
 ```
 classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
@@ -91,19 +100,20 @@ once a Mermaid release with the fix is in use.
 Paste as-is before `sequenceDiagram`:
 
 ```
-%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F4F4F5', 'activationBorderColor': '#D4D4D8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#2C2C2C'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#EEF2FF', 'actorBorder': '#A5B4FC', 'actorTextColor': '#1E1B4B', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#1E1B4B', 'activationBkgColor': '#EEF2FF', 'activationBorderColor': '#A5B4FC', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#1E1B4B'}}}%%
 ```
 
 ## Palette mapping to sequenceDiagram themeVariables
 
 | Palette role | themeVariable |
 |---|---|
-| Node fill `#FFFFFF` / stroke `#666666` / text `#2C2C2C` | `actorBkg` / `actorBorder` / `actorTextColor` |
+| Node fill `#EEF2FF` / stroke `#A5B4FC` / text `#1E1B4B` | `actorBkg` / `actorBorder` / `actorTextColor` |
 | Accent `#333333` | `signalColor` |
 | Text `#2C2C2C` | `signalTextColor` |
 | Group `#FFFFFF` / `#C7C7F1` | `noteBkgColor` / `noteBorderColor` / `labelBoxBkgColor` / `labelBoxBorderColor` |
-| Light grey `#F4F4F5` / `#D4D4D8` | `activationBkgColor` / `activationBorderColor` |
-| Text `#2C2C2C` | `noteTextColor` / `loopTextColor` / `labelTextColor` |
+| Node fill `#EEF2FF` / stroke `#A5B4FC` | `activationBkgColor` / `activationBorderColor` |
+| Node text `#1E1B4B` | `noteTextColor` / `labelTextColor` |
+| Text `#2C2C2C` | `loopTextColor` |
 
 ## Icon guidelines (fa:fa-*)
 
@@ -170,7 +180,7 @@ flowchart TB
     B --> DB
     DB -.->|読み取り専用| C
 
-    classDef node fill:#FFFFFF,stroke:#666666,stroke-width:1.5px,color:#2C2C2C
+    classDef node fill:#EEF2FF,stroke:#A5B4FC,stroke-width:1.5px,color:#1E1B4B
     class A,B,C,DB node
     style Main fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
     style Sub fill:none,stroke:#C7C7F1,stroke-width:2px,stroke-dasharray:8 8,color:#2C2C2C
@@ -186,7 +196,7 @@ copy-pasted from another diagram.
 ### sequenceDiagram
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#FFFFFF', 'actorBorder': '#666666', 'actorTextColor': '#2C2C2C', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#2C2C2C', 'activationBkgColor': '#F4F4F5', 'activationBorderColor': '#D4D4D8', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#2C2C2C'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'actorBkg': '#EEF2FF', 'actorBorder': '#A5B4FC', 'actorTextColor': '#1E1B4B', 'signalColor': '#333333', 'signalTextColor': '#2C2C2C', 'noteBkgColor': '#FFFFFF', 'noteBorderColor': '#C7C7F1', 'noteTextColor': '#1E1B4B', 'activationBkgColor': '#EEF2FF', 'activationBorderColor': '#A5B4FC', 'loopTextColor': '#2C2C2C', 'labelBoxBkgColor': '#FFFFFF', 'labelBoxBorderColor': '#C7C7F1', 'labelTextColor': '#1E1B4B'}}}%%
 sequenceDiagram
     participant A as サービス A
     participant B as サービス B

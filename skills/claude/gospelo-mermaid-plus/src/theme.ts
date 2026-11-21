@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { iconNamesInDiagrams } from '@gospelo/mermaid-arch'
 import type { IconCategory, MermaidBlock } from '@gospelo/mermaid-arch'
-import { deriveGroupBorder } from './color.ts'
+import { deriveGroupBorder, deriveNodeColors } from './color.ts'
 
 /** references/color-scheme.md of the bundled skill. */
 export const DEFAULT_SCHEME = fileURLToPath(
@@ -15,22 +15,31 @@ export const DEFAULT_SCHEME = fileURLToPath(
 )
 
 // Colors of the default scheme that --accent replaces: the solid links
-// (dashed links use the text color #2C2C2C, so they stay black) and the
-// dashed group border.
+// (dashed links use the text color #2C2C2C, so they stay black), the
+// dashed group border and the periwinkle nodes of diagrams without icons.
+// The white nodes of icon diagrams are not replaced.
 const DEFAULT_ACCENT = '#333333'
 const DEFAULT_GROUP_BORDER = '#C7C7F1'
+const DEFAULT_NODE = { fill: '#EEF2FF', border: '#A5B4FC', text: '#1E1B4B' }
 
-/** Put `accentHex` in place of the default solid-link black, and the
- * border derived from it in place of the default lavender group border. */
+/** Put `accentHex` in place of the default solid-link black, and colors
+ * derived from it in place of the lavender group border and the
+ * periwinkle node colors. */
 export function applyAccentToScheme(schemeText: string, accentHex: string): string {
-  const borderHex = deriveGroupBorder(accentHex)
-  return schemeText
-    .replaceAll(DEFAULT_ACCENT, accentHex)
-    .replaceAll(DEFAULT_ACCENT.toLowerCase(), accentHex)
-    .replaceAll(DEFAULT_GROUP_BORDER, borderHex)
-    .replaceAll(DEFAULT_GROUP_BORDER.toLowerCase(), borderHex)
+  const node = deriveNodeColors(accentHex)
+  const swaps: Array<[string, string]> = [
+    [DEFAULT_ACCENT, accentHex],
+    [DEFAULT_GROUP_BORDER, deriveGroupBorder(accentHex)],
+    [DEFAULT_NODE.fill, node.fill],
+    [DEFAULT_NODE.border, node.border],
+    [DEFAULT_NODE.text, node.text],
+  ]
+  let out = schemeText
+  for (const [from, to] of swaps) out = out.replaceAll(from, to).replaceAll(from.toLowerCase(), to)
+  return out
     .replace(/\| Black — normal data\/control flow \|/g, '| Accent color — normal data/control flow |')
     .replace(/\| Light lavender dashed border,/g, '| Light accent dashed border,')
+    .replace(/\| Light periwinkle —/g, '| Light accent tint —')
 }
 
 export interface ThemePromptOptions {
@@ -109,7 +118,9 @@ any other text or explanation.
    and \`config.elk.lineHops\` (rule 2).
 2. For **flowchart / graph** blocks:
    - Add \`classDef node\` with the palette values and apply it to ALL node IDs
-     via \`class A,B,C node\`.
+     via \`class A,B,C node\`. Use the periwinkle node colors, or the white
+     ones when the flowchart has icon nodes (\`@{ icon: "aws:..." }\`)
+     (see "Node colors").
    - Add \`style <subgraph_id> ...\` with the group style for each subgraph
      (every subgraph alike) unless a custom palette override is already present.
    - Add \`linkStyle\` entries: solid accent color for normal flow arrows (\`-->\`),
